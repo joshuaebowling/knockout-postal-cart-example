@@ -3,47 +3,50 @@
   <head>
   <title>Candy Shop</title>    
   <link rel="stylesheet" href="candy-shop.css">
-  <script type="text/javascript" src="sightglass.js"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rivets/0.9.6/rivets.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-debug.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" type="text/javascript"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js" type="text/javascript"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/postal.js/2.0.5/postal.min.js" type="text/javascript"></script>
-  </head>
-  <body>
+  <script type="text/template" id="tmpl-cart">
     <div id="candy-shop">
-      <h1 rv-text="data.title"></h1>
+      <h1 data-bind="text: title"></h1>
       <h3>Products</h3>
       <ul>
-        <li rv-each-product="data.products">
-          <h3 rv-text="product.title"></h3>
-          <var rv-html="product.price | price"></var>
-          <button type="button" rv-on-click="controller.onAtbClick">Add to bag</button>
+        <li data-bind="foreach: products">
+          <h3 data-bind="text: title"></h3>
+          <span data-bind="text: title"></span>
+          <button type="button" data-bind="click: $parent.onAtbClick">Add to bag</button>
       </ul>
       <hr>
       <h3>Shopping Bag</h3>
-      <p rv-hide="data.bag | length">You have no items in your bag.</p>
+      <p data-bind="visible: bag().length === 0">You have no items in your bag.</p>
       <ul>
-        <li rv-each-product="data.bag">
-          <h3 rv-text="product.title"></h3>
-          <button type="button" rv-on-click="controller.removeItem">-</button>
-          <span> Quantity { product.quantity } </span>
-          <button type="button" rv-on-click="controller.addItem">+</button>
+        <li data-bind="foreach: bag">
+          <h3 data-bind="text: title"></h3>
+          <button type="button" data-bind="click: $parent.removeItem">-</button>
+          <span> Quantity <span data-bind="text: quantity"></span> </span>
+          <button type="button" data-bind="click: $parent.addItem">+</button>
       </ul>
       <hr>
-      <div rv-show="data.bag | length">
+      <div data-bind="visible: bag().length > 0">
         <h3>Current Cost</h3>
         <div>
-          <b>subtotal:</b> <var rv-html="data.subtotal | price"></var>
+          <b>subtotal:</b> <var data-bind="text: subtotal"></var>
         </div>
         <div>
-          <b>tax:</b> <var rv-html="data.tax | price"></var>
+          <b>tax:</b> <var data-bind="text: tax"></var>
         </div>
         <div>
-          <b>total:</b> <var rv-html="data.total | price"></var>
+          <b>total:</b> <var data-bind="text: total"></var>
         </div>
       </div>
     </div>
-    
+  </script>
+  </head>
+  <body>
+    <div id="app">
+      <cart />
+    </div>
     <script type="text/javascript" src="candy-shop.js"></script>
   </body>
 </html>
