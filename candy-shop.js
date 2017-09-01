@@ -1,4 +1,6 @@
-var cartService, controller, data, productService;
+var cartService, controller, data, productService,
+CartModel, ProductModel, ProductsModel, BagModel;
+
 cartService = (() => {
     var cartChannel, cart, totals, updateTotals;
     cart = {
@@ -98,25 +100,66 @@ productService = (() => {
 })();
 
 CartModel = function(attributes) {
+    var self, vm;
+
+    window.self = self = this;    
+    self.vm = vm = {
+        attributes: attributes,
+        title: 'Welcome to the Postal Smart Cart',
+        subtotal: ko.observable(0),
+        tax: ko.observable(0),
+        total: ko.observable(0),
+    };
+    vm.show = ko.computed(() => { console.log(vm); return vm.subtotal() > 0; }, vm),
+    
+
+    // subscriptions for controller
+    postal.channel('cart').subscribe('*.response', (cart, env) => {
+        // same thing here, replace each value
+        vm.subtotal(cart.totals.subTotal);
+        vm.tax(cart.totals.tax);
+        vm.total(cart.totals.total);
+    });
+
+    return vm;
+        
+};
+
+BagModel = function(attributes) {
     var vm;
 
     vm = {
         attributes: attributes,
-        title: 'Welcome to the Postal Smart Cart',
-        products: ko.observableArray([]),
         bag: ko.observableArray([]),
-        subtotal: ko.observable(0),
-        tax: ko.observable(0),
-        total: ko.observable(0),
-        onAtbClick: function(product) {
-            cartService.add(product);
-        },        
         addItem: function(product) {
           cartService.add(product);
         },
         removeItem: function(product) {
             cartService.remove(product);
         } 
+    };
+
+
+    // subscriptions for controller
+    postal.channel('cart').subscribe('*.response', (cart, env) => {
+        // clear it
+        vm.bag.removeAll();
+        // repopulate without changing the reference -- rivets won't pickup on it changes like vm.bag = x, you have to repopulate the original array
+        _.each(cart.store, (item) => vm.bag.push(item));
+    });
+
+    return vm;
+        
+};
+
+
+
+ProductsModel = function(attributes) {
+    var vm;
+
+    vm = {
+        attributes: attributes,
+        products: ko.observableArray([]),
     };
     // listen for when the product service returns a list of products, will also work for paging 
     postal.channel('product').subscribe('get.response', (d, env) => {
@@ -125,19 +168,19 @@ CartModel = function(attributes) {
         });
     });
 
-    // subscriptions for controller
-    postal.channel('cart').subscribe('*.response', (cart, env) => {
-        // clear it
-        vm.bag.removeAll();
-        // repopulate without changing the reference -- rivets won't pickup on it changes like vm.bag = x, you have to repopulate the original array
-        _.each(cart.store, (item) => vm.bag.push(item));
-        // same thing here, replace each value
-        vm.subtotal(cart.totals.subTotal);
-        vm.tax(cart.totals.tax);
-        vm.total(cart.totals.total);
-    });
-
     productService.get({});        
+    return vm;
+        
+};
+
+ProductModel = function(context) {
+    var vm;
+    vm = {
+        model: context.model,        
+        addToBag: function() {
+            cartService.add(context.model);
+        }
+    };
     return vm;
         
 };
@@ -196,6 +239,18 @@ CartModel = function(attributes) {
 ko.components.register('cart', {
     template:  $('#tmpl-cart').html(),
     viewModel: CartModel
+});
+ko.components.register('product', {
+    template:  $('#tmpl-product').html(),
+    viewModel: ProductModel
+});
+ko.components.register('products', {
+    template:  $('#tmpl-products').html(),
+    viewModel: ProductsModel
+});
+ko.components.register('bag', {
+    template:  $('#tmpl-bag').html(),
+    viewModel: BagModel
 });
 
 

@@ -8,32 +8,38 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js" type="text/javascript"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/postal.js/2.0.5/postal.min.js" type="text/javascript"></script>
   <script src="lodash-template-adapter.js" type="text/javascript"></script>
-  <script type="text/template" id="">
-
+  <script type="text/template" id="tmpl-product">
+    <h3 data-bind="text: model.title"></h3>
+    <span data-bind="text: model.price"></span>
+    <button type="button" data-bind="click: addToBag">Add to bag</button>
+  </script>
+  <script type="text/template" id="tmpl-products">
+    <h3>Products</h3>
+    <ul>
+      <li data-bind="foreach: products">
+        <product params="model: $data"/>
+      </li>
+    </ul>
+  </script>
+  <script type="text/template" id="tmpl-bag">
+    <h3>Shopping Bag</h3>
+    <p data-bind="visible: bag().length === 0">You have no items in your bag.</p>
+    <ul>
+      <li data-bind="foreach: bag">
+        <h3 data-bind="text: title"></h3>
+        <button type="button" data-bind="click: $parent.removeItem">-</button>
+        <span> Quantity <span data-bind="text: quantity"></span> </span>
+        <button type="button" data-bind="click: $parent.addItem">+</button>
+    </ul>
   </script>
   <script type="text/template" id="tmpl-cart">
-    <div id="candy-shop">
+    <div id="cart">
       <h1 data-bind="text: title"></h1>
-      <h3>Products</h3>
-      <ul>
-        <li data-bind="foreach: products">
-          <h3 data-bind="text: title"></h3>
-          <span data-bind="text: title"></span>
-          <button type="button" data-bind="click: $parent.onAtbClick">Add to bag</button>
-        </li>
-      </ul>
+      <products />
       <hr>
-      <h3>Shopping Bag</h3>
-      <p data-bind="visible: bag().length === 0">You have no items in your bag.</p>
-      <ul>
-        <li data-bind="foreach: bag">
-          <h3 data-bind="text: title"></h3>
-          <button type="button" data-bind="click: $parent.removeItem">-</button>
-          <span> Quantity <span data-bind="text: quantity"></span> </span>
-          <button type="button" data-bind="click: $parent.addItem">+</button>
-      </ul>
+      <bag />      
       <hr>
-      <div data-bind="visible: bag().length > 0">
+      <div data-bind="visible: show">
         <h3>Current Cost</h3>
         <div>
           <b>subtotal:</b> <var data-bind="text: subtotal"></var>
