@@ -1,5 +1,8 @@
-var cartService, controller, data, productService,
-CartModel, ProductModel, ProductsModel, BagModel;
+var 
+// services
+cartService, productService,
+//view models
+BagItemModel, BagModel, CartModel, ProductModel, ProductsModel;
 
 cartService = (() => {
     var cartChannel, cart, totals, updateTotals;
@@ -100,10 +103,9 @@ productService = (() => {
 })();
 
 CartModel = function(attributes) {
-    var self, vm;
+    var vm;
 
-    window.self = self = this;    
-    self.vm = vm = {
+    vm = {
         attributes: attributes,
         title: 'Welcome to the Postal Smart Cart',
         subtotal: ko.observable(0),
@@ -130,13 +132,7 @@ BagModel = function(attributes) {
 
     vm = {
         attributes: attributes,
-        bag: ko.observableArray([]),
-        addItem: function(product) {
-          cartService.add(product);
-        },
-        removeItem: function(product) {
-            cartService.remove(product);
-        } 
+        bag: ko.observableArray([])
     };
 
 
@@ -148,8 +144,22 @@ BagModel = function(attributes) {
         _.each(cart.store, (item) => vm.bag.push(item));
     });
 
-    return vm;
-        
+    return vm;      
+};
+
+BagItemModel = function(context) {
+    var vm;
+    vm = {
+        model: context.model,
+        addItem: function() {
+          cartService.add(vm.model);
+        },
+        removeItem: function() {
+            cartService.remove(vm.model);
+        } 
+    };
+
+    return vm;      
 };
 
 
@@ -248,11 +258,14 @@ ko.components.register('products', {
     template:  $('#tmpl-products').html(),
     viewModel: ProductsModel
 });
+ko.components.register('bagitem', {
+    template:  $('#tmpl-bag-item').html(),
+    viewModel: BagItemModel
+});
 ko.components.register('bag', {
     template:  $('#tmpl-bag').html(),
     viewModel: BagModel
 });
-
 
 ko.applyBindings({}, $('#app')[0]);
 
