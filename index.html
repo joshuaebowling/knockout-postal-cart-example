@@ -7,6 +7,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" type="text/javascript"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js" type="text/javascript"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/postal.js/2.0.5/postal.min.js" type="text/javascript"></script>
+  <script src="lodash-template-adapter.js" type="text/javascript"></script>
+  <script type="text/template" id="">
+
+  </script>
   <script type="text/template" id="tmpl-cart">
     <div id="candy-shop">
       <h1 data-bind="text: title"></h1>
@@ -16,6 +20,7 @@
           <h3 data-bind="text: title"></h3>
           <span data-bind="text: title"></span>
           <button type="button" data-bind="click: $parent.onAtbClick">Add to bag</button>
+        </li>
       </ul>
       <hr>
       <h3>Shopping Bag</h3>
