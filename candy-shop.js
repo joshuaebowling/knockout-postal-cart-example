@@ -2,7 +2,7 @@ var
 // services
 cartService, productService,
 //view models
-BagItemModel, BagModel, CartModel, ProductModel, ProductsModel;
+BagItemModel, BagModel, CartModel, FreeShippingModel, ProductModel, ProductsModel;
 
 cartService = (() => {
     var cartChannel, cart, totals, updateTotals;
@@ -112,7 +112,9 @@ CartModel = function(attributes) {
         tax: ko.observable(0),
         total: ko.observable(0),
     };
-    vm.show = ko.computed(() => { console.log(vm); return vm.subtotal() > 0; }, vm),
+    vm.show = ko.computed(() => { 
+        return vm.subtotal() > 0; 
+    });
     
 
     // subscriptions for controller
@@ -162,6 +164,23 @@ BagItemModel = function(context) {
     return vm;      
 };
 
+FreeShippingModel = function() {
+    var vm;
+    vm = {
+        subTotal: ko.observable(0),
+        threshold: 400
+    };
+    
+    vm.qualified = ko.computed(() => {
+        return vm.threshold <= vm.subTotal();
+    });
+
+    postal.channel('cart').subscribe('*.response', (cart, env) => {
+        vm.subTotal(cart.totals.subTotal);
+    });
+
+    return vm;      
+};
 
 
 ProductsModel = function(attributes) {
@@ -266,6 +285,12 @@ ko.components.register('bag', {
     template:  $('#tmpl-bag').html(),
     viewModel: BagModel
 });
+ko.components.register('freeshipping', {
+    template:  $('#tmpl-freeshipping').html(),
+    viewModel: FreeShippingModel
+});
+
+
 
 ko.applyBindings({}, $('#app')[0]);
 

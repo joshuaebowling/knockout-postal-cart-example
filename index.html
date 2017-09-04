@@ -36,9 +36,14 @@
       </li>
     </ul>
   </script>
+  <script type="text/template" id="tmpl-freeshipping">
+    <p data-bind="visible: qualified">You qualify for FREE SHIPPING</p>
+    <p data-bind="visible: qualified() === false">FREE SHIPPING in <span data-bind="text: threshold - subTotal()"></span></p>
+  </script>
   <script type="text/template" id="tmpl-cart">
     <div id="cart">
       <h1 data-bind="text: title"></h1>
+      <freeshipping />
       <products />
       <hr>
       <bag />      
