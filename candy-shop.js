@@ -2,7 +2,7 @@ var
 // services
 cartService, productService,
 //view models
-BagItemModel, BagModel, CartModel, FreeShippingModel, ProductModel, ProductsModel;
+BagItemModel, BagModel, CartModel, FreeShippingModel, ItemsInCartModel, ProductModel, ProductsModel;
 
 cartService = (() => {
     var cartChannel, cart, totals, updateTotals;
@@ -15,6 +15,13 @@ cartService = (() => {
             },
             get total() {
                 return cart.totals.subTotal + cart.totals.tax;
+            },
+            get itemsInCart() {
+                var result;
+
+                result = 0;
+                _.each(cart.store, (item) => { result +=  item.quantity; });
+                return result;
             }
         }
     };
@@ -116,7 +123,6 @@ CartModel = function(attributes) {
         return vm.subtotal() > 0; 
     });
     
-
     // subscriptions for controller
     postal.channel('cart').subscribe('*.response', (cart, env) => {
         // same thing here, replace each value
@@ -151,6 +157,7 @@ BagModel = function(attributes) {
 
 BagItemModel = function(context) {
     var vm;
+
     vm = {
         model: context.model,
         addItem: function() {
@@ -166,6 +173,7 @@ BagItemModel = function(context) {
 
 FreeShippingModel = function() {
     var vm;
+
     vm = {
         subTotal: ko.observable(0),
         threshold: 400
@@ -182,6 +190,19 @@ FreeShippingModel = function() {
     return vm;      
 };
 
+ItemsInCartModel = function() {
+    var vm;
+
+    vm = {
+        itemsInCart: ko.observable(0)
+    };
+
+    postal.channel('cart').subscribe('*.response', (cart, env) => {
+        vm.itemsInCart(cart.totals.itemsInCart);
+    });
+
+    return vm;        
+};
 
 ProductsModel = function(attributes) {
     var vm;
@@ -204,14 +225,14 @@ ProductsModel = function(attributes) {
 
 ProductModel = function(context) {
     var vm;
+
     vm = {
         model: context.model,        
         addToBag: function() {
             cartService.add(context.model);
         }
     };
-    return vm;
-        
+    return vm;        
 };
 
 
@@ -288,6 +309,10 @@ ko.components.register('bag', {
 ko.components.register('freeshipping', {
     template:  $('#tmpl-freeshipping').html(),
     viewModel: FreeShippingModel
+});
+ko.components.register('itemsincart', {
+    template:  $('#tmpl-items-in-cart').html(),
+    viewModel: ItemsInCartModel
 });
 
 
