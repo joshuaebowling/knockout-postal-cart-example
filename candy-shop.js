@@ -234,7 +234,6 @@ productService = (() => {
         return result;
     };
 
-    window.products = store;
     // the default values the crit argument passed with get.request
     critDefaults = {
         limit: 5,
@@ -247,7 +246,8 @@ productService = (() => {
 
     return {
         get: function(crit = {}) {
-            postal.channel('product').publish('get.request', crit);
+            // allows all viewmodels processing in current stack to complete
+            _.defer( () => postal.channel('product').publish('get.request', crit) );
         }
     };
 })();
@@ -361,7 +361,7 @@ ProductsModel = function(attributes) {
         _.each(d.page, (product) => vm.products.push(product));
     });
 
-    _.defer(() => productService.get({}));
+    productService.get({});
     return vm;
         
 };
