@@ -13,6 +13,11 @@
     <span data-bind="text: model.price"></span>
     <button type="button" data-bind="click: addToBag">Add to bag</button>
   </script>
+  <script type="text/template" id="tmpl-products-navigation">
+    <button type="button" data-bind="click: prevPage, enable: hasLessPages">Verp</button>
+    <span>Page: <span data-bind="text: currentPage" /></span>
+    <button type="button" data-bind="click: nextPage, enable: hasMorePages">Next</button>
+  </script>
   <script type="text/template" id="tmpl-bag-item">
     <h3 data-bind="text: model.title"></h3>
     <button type="button" data-bind="click: removeItem">-</button>
@@ -21,6 +26,7 @@
 </script>
   <script type="text/template" id="tmpl-products">
     <h3>Products</h3>
+    <productsnavigation />
     <ul>
       <li data-bind="foreach: products">
         <product params="model: $data"/>

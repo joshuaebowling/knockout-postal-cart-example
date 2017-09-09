@@ -2,7 +2,8 @@ var
 // services
 cartService, productService,
 //view models
-BagItemModel, BagModel, CartModel, FreeShippingModel, ItemsInCartModel, ProductModel, ProductsModel;
+BagItemModel, BagModel, CartModel, FreeShippingModel, ItemsInCartModel, ProductModel,
+    ProductsModel, ProductsModelNavigation;
 
 cartService = (() => {
     var cartChannel, cart, totals, updateTotals;
@@ -71,7 +72,9 @@ cartService = (() => {
 })();
 
 productService = (() => {
-    var store =  _.map([
+    var critDefaults, page, store;
+    
+    store =  _.map([
             {
                 title: 'Coffee',
                 price: 14.95,
@@ -211,14 +214,35 @@ productService = (() => {
                 
             }
             
-        ].slice(0, 5), // keep it at 5 until paging is complete
+        ], // keep it at 5 until paging is complete
     (item, i) => { 
         item.id = i; 
         return item;
     });
+
+    // pass in array when implement sorting or filtering
+    page = function _page(limit, skip = 0) {
+        // since the demo will only have item counts that are multiples of 5 & 5 is the page size
+        // this naive impl will do fine
+        var result;
+
+        result = {
+            skip: skip + limit,
+            total: store.length
+        };
+        result.page =  _.slice(store, skip === store.length ? 0 : skip, limit + skip);
+        return result;
+    };
+
+    window.products = store;
+    // the default values the crit argument passed with get.request
+    critDefaults = {
+        limit: 5,
+        skip: 0
+    };
     // pickup any request for cart items
     postal.channel('product').subscribe('get.request', (crit, env) => {
-        postal.channel('product').publish('get.response', store);
+        postal.channel('product').publish('get.response', page(crit['limit'] || critDefaults.limit, crit['skip'] || critDefaults.skip));
     });
 
     return {
@@ -236,7 +260,7 @@ CartModel = function(attributes) {
         title: 'Welcome to the Postal Smart Cart',
         subtotal: ko.observable(0),
         tax: ko.observable(0),
-        total: ko.observable(0),
+        total: ko.observable(0)
     };
     vm.show = ko.computed(() => { 
         return vm.subtotal() > 0; 
@@ -328,18 +352,45 @@ ProductsModel = function(attributes) {
 
     vm = {
         attributes: attributes,
-        products: ko.observableArray([]),
+        products: ko.observableArray([])
     };
+
     // listen for when the product service returns a list of products, will also work for paging 
     postal.channel('product').subscribe('get.response', (d, env) => {
-        _.each(_.uniq(d, vm.products()), (p, pi) => {
-            vm.products.push(p);
-        });
+        vm.products.removeAll();
+        _.each(d.page, (product) => vm.products.push(product));
     });
 
-    productService.get({});        
+    _.defer(() => productService.get({}));
     return vm;
         
+};
+
+ProductsModelNavigation = function() {
+    var vm;
+    
+    vm = {
+        currentPage: ko.observable(1),
+        pageSize: 5, // will observe this
+        hasMorePages: ko.observable(true),
+        hasLessPages: ko.observable(true)
+    };
+
+    vm.skip = ko.computed(() => vm.currentPage() * vm.pageSize);
+    vm.nextPage = function() {
+        productService.get({ limit: vm.pageSize, skip: vm.skip() });
+    };
+    vm.prevPage = function() {
+        productService.get({ limit: vm.pageSize, skip: vm.skip() - ( vm.pageSize * 2 ) });
+    };
+
+    postal.channel('product').subscribe('get.response', (d, env) => {
+        vm.currentPage(d.skip/vm.pageSize);
+        vm.hasMorePages(d.skip < d.total);
+        vm.hasLessPages(d.skip/vm.pageSize > 1);
+    });
+
+    return vm;        
 };
 
 ProductModel = function(context) {
@@ -416,6 +467,10 @@ ko.components.register('product', {
 ko.components.register('products', {
     template:  $('#tmpl-products').html(),
     viewModel: ProductsModel
+});
+ko.components.register('productsnavigation', {
+    template:  $('#tmpl-products-navigation').html(),
+    viewModel: ProductsModelNavigation
 });
 ko.components.register('bagitem', {
     template:  $('#tmpl-bag-item').html(),
