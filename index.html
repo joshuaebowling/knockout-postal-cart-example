@@ -27,8 +27,8 @@
   <script type="text/template" id="tmpl-products">
     <h3>Products</h3>
     <productsnavigation />
-    <ul>
-      <li data-bind="foreach: products">
+    <ul data-bind="foreach: products">
+      <li>
         <product params="model: $data"/>
       </li>
     </ul>
