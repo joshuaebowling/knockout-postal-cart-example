@@ -216,7 +216,7 @@ productService = (() => {
             
         ], // keep it at 5 until paging is complete
     (item, i) => { 
-        item.id = i; 
+        item.id = i;
         return item;
     });
 

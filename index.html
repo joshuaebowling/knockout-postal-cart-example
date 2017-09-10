@@ -11,6 +11,7 @@
   <script type="text/template" id="tmpl-product">
     <h3 data-bind="text: model.title"></h3>
     <span data-bind="text: model.price"></span>
+    <p> only  <span data-bind="text: model.available"></span> left</p>
     <button type="button" data-bind="click: addToBag">Add to bag</button>
   </script>
   <script type="text/template" id="tmpl-products-navigation">
