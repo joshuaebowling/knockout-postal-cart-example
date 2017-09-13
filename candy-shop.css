@@ -13,3 +13,8 @@ li:first-child {
   padding-left: 0;
   border-left: none;
 }
+
+.message .message-type {
+  display: inline-block;
+  font-size:40px;
+}
