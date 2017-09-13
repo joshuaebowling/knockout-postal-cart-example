@@ -1,12 +1,13 @@
 var 
 // services
-cartService, productService,
+cartService, productService, messageService,
 //view models
-BagItemModel, BagModel, CartModel, FreeShippingModel, ItemsInCartModel, ProductModel,
-    ProductsModel, ProductsModelNavigation;
+BagItemModel, BagModel, CartModel, FreeShippingModel, ItemsInCartModel, MessageModel,
+    ProductModel, ProductsModel, ProductsModelNavigation;
 
 cartService = (() => {
-    var cartChannel, cart, totals, updateTotals;
+    var adjustQuantity, cart, channel, totals, updateTotals;
+    channel = postal.channel('cart');
     cart = {
         store: [],
         totals: {
@@ -26,53 +27,60 @@ cartService = (() => {
             }
         }
     };
-    cartChannel = postal.channel('cart');
-    // pickup any request for cart items
-    cartChannel.subscribe('get.request', (crit, env) => {
-        cartChannel.publish('get.response', store);
-    });
-    cartChannel.subscribe('add.request', (item, env) => {
+
+    adjustQuantity = function CartService_adjustQuantity(item, quantity) {
         var existentItem = _.find(cart.store, (cartitem) => { return item.id === cartitem.id });
         if(existentItem) {
-            existentItem.quantity++;
+            existentItem.quantity += quantity;
+            if(existentItem.quantity === 0) _.remove(cart.store, existentItem);
         } else {
-            item.quantity = 1;
+            item.quantity = quantity;
             cart.store.push(item);
+            // now the item is existent
+            existentItem = item;
         }
         updateTotals();
-        cartChannel.publish('add.response', cart);
-    });
-    cartChannel.subscribe('remove.request', (item, env) => {
-        var existentItem = _.find(cart.store, item);
-        if(existentItem && existentItem.quantity > 1) {
-            existentItem.quantity--;
-        } else {
-            _.remove(cart.store, item);
-        }
-        updateTotals();
-        cartChannel.publish('remove.response', cart);
-    });
+        return existentItem;
+    };
 
     updateTotals = function() {
         var result = 0;
         _.each(cart.store, (item) => result += (item.price * item.quantity));
         cart.totals.subTotal = result;
     };
+
+    // pickup any request for cart items
+    channel.subscribe('get.request', (crit, env) => {
+        channel.publish('get.response', { cart });
+    });
+
+    channel.subscribe('change.request', (request, env) => {
+        var changed;
+        
+        changed = adjustQuantity(request.item, request.quantity);
+        channel.publish('change.response', { cart, changed, quantity: request.quantity });
+    });
+    
     return {
         get: function(crit = {}) {
             postal.channel('cart').publish('get.request', crit);
         },
-        add: function(item) {
-            postal.channel('cart').publish('add.request', item);
+        change: function(item, quantity) {
+            postal.channel('cart').publish('change.request', { item, quantity });
         },
-        remove: function(item) {
-            postal.channel('cart').publish('remove.request', item);
+        // not sure about this pattern
+        subscriptions: {
+            // lets see about currying this 
+            onChange: function(todo) { channel.subscribe('change.response', todo) },
+            anyResponse: function(todo) { channel.subscribe('*.response', todo) }
         }
     };
 })();
 
 productService = (() => {
-    var critDefaults, page, store;
+    
+    const channel = postal.channel('product');
+    var adjustAvailable, currentPage, critDefaults, page, store;
     
     store =  _.map([
             {
@@ -216,9 +224,18 @@ productService = (() => {
             
         ], // keep it at 5 until paging is complete
     (item, i) => { 
-        item.id = i; 
+        item.id = i;    
         return item;
     });
+
+    adjustAvailable = function ProductService_adjustAvailable(product, quantity) {
+        var found;
+        
+         found = _.find(store, (aproduct) => aproduct.id === product.id);
+         /// TODO: if the found isnt found then publish to the MessageService
+         found.available = found.available + quantity;
+         return found; 
+    };
 
     // pass in array when implement sorting or filtering
     page = function _page(limit, skip = 0) {
@@ -240,16 +257,54 @@ productService = (() => {
         skip: 0
     };
     // pickup any request for cart items
-    postal.channel('product').subscribe('get.request', (crit, env) => {
-        postal.channel('product').publish('get.response', page(crit['limit'] || critDefaults.limit, crit['skip'] || critDefaults.skip));
+    channel.subscribe('get.request', (crit, env) => { 
+        currentPage = page(crit['limit'] || critDefaults.limit, crit['skip'] || critDefaults.skip);
+        channel.publish('get.response', currentPage);
+    });
+    // demonstrate custom topic in request.replyTopic
+    cartService.subscriptions.onChange((data, env) => {
+        var found, quantity;
+        // an increase in cart is a decrease in product and vice-versa, so flip the value
+        adjustAvailable(data.changed, -(data.quantity));
+        console.log(data.changed.available);
+        if(data.changed.available === 0) messageService.display(messageService.constants.messageTypes.alert, "You bought us out!!!");         
+        
+        // if the updated item is in the currentPage, publish the change
+        if(_.find(currentPage.page, {id: data.changed.id})) { 
+            channel.publish('get.response', currentPage);
+        }
     });
 
     return {
-        get: function(crit = {}) {
+        get: function ProductService_Get(crit = {}) {
             // allows all viewmodels processing in current stack to complete
-            _.defer( () => postal.channel('product').publish('get.request', crit) );
+            _.defer( () => channel.publish('get.request', crit) );
         }
     };
+})();
+
+messageService = (() => {
+    var channel;
+    const messageTypes = {alert: '!', info: 'i'};
+    channel = postal.channel('message');
+    channel.subscribe('display.request', (message, env) => {
+        // check to see if there's any subscription
+        if(postal.getSubscribersFor({channel: 'message', topic:'display.response'}).length === 0) throw new Info("Please Add A Message ViewModel To The App");
+        channel.publish('display.response', message);
+    });
+    return {
+        // queue would be be good here
+        display: function(type, text) {
+            channel.publish('display.request', {type, text});
+        },
+        subscriptions: {
+            displayResponse: function MessageService_displayResponse(todo) {
+                channel.subscribe('display.response', todo);
+            }
+        },
+        constants: {messageTypes}
+
+    }
 })();
 
 CartModel = function(attributes) {
@@ -267,11 +322,11 @@ CartModel = function(attributes) {
     });
     
     // subscriptions for controller
-    postal.channel('cart').subscribe('*.response', (cart, env) => {
+    cartService.subscriptions.anyResponse((data, env) => {
         // same thing here, replace each value
-        vm.subtotal(cart.totals.subTotal);
-        vm.tax(cart.totals.tax);
-        vm.total(cart.totals.total);
+        vm.subtotal(data.cart.totals.subTotal);
+        vm.tax(data.cart.totals.tax);
+        vm.total(data.cart.totals.total);
     });
 
     return vm;
@@ -286,13 +341,12 @@ BagModel = function(attributes) {
         bag: ko.observableArray([])
     };
 
-
     // subscriptions for controller
-    postal.channel('cart').subscribe('*.response', (cart, env) => {
+    cartService.subscriptions.anyResponse((data, env) => {
         // clear it
         vm.bag.removeAll();
         // repopulate without changing the reference -- rivets won't pickup on it changes like vm.bag = x, you have to repopulate the original array
-        _.each(cart.store, (item) => vm.bag.push(item));
+        _.each(data.cart.store, (item) => vm.bag.push(item));
     });
 
     return vm;      
@@ -304,10 +358,10 @@ BagItemModel = function(context) {
     vm = {
         model: context.model,
         addItem: function() {
-          cartService.add(vm.model);
+          cartService.change(vm.model, 1);
         },
         removeItem: function() {
-            cartService.remove(vm.model);
+          cartService.change(vm.model, -1);
         } 
     };
 
@@ -326,8 +380,8 @@ FreeShippingModel = function() {
         return vm.threshold <= vm.subTotal();
     });
 
-    postal.channel('cart').subscribe('*.response', (cart, env) => {
-        vm.subTotal(cart.totals.subTotal);
+    cartService.subscriptions.anyResponse((data, env) => {
+        vm.subTotal(data.cart.totals.subTotal);
     });
 
     return vm;      
@@ -340,11 +394,34 @@ ItemsInCartModel = function() {
         itemsInCart: ko.observable(0)
     };
 
-    postal.channel('cart').subscribe('*.response', (cart, env) => {
-        vm.itemsInCart(cart.totals.itemsInCart);
+    cartService.subscriptions.anyResponse((data, env) => {
+        vm.itemsInCart(data.cart.totals.itemsInCart);
     });
 
     return vm;        
+};
+
+MessageModel = function _MessageModel() {
+    var vm;
+    
+        vm = {
+            text: ko.observable(null),
+            type: ko.observable(null),
+            dismiss: function() {
+                vm.text(null);
+                vm.type(null);
+            }
+        };
+        vm.show = ko.computed(() => {
+            return !_.isNull(vm.text());
+        });
+
+        messageService.subscriptions.displayResponse((data, env) => {
+            vm.text(data.text);
+            vm.type(data.type);
+        });
+    
+        return vm; 
 };
 
 ProductsModel = function(attributes) {
@@ -399,7 +476,7 @@ ProductModel = function(context) {
     vm = {
         model: context.model,        
         addToBag: function() {
-            cartService.add(context.model);
+            cartService.change(context.model, 1);
         }
     };
     return vm;        
@@ -487,6 +564,10 @@ ko.components.register('freeshipping', {
 ko.components.register('itemsincart', {
     template:  $('#tmpl-items-in-cart').html(),
     viewModel: ItemsInCartModel
+});
+ko.components.register('message', {
+    template:  $('#tmpl-message').html(),
+    viewModel: MessageModel
 });
 
 
