@@ -1,9 +1,9 @@
 var 
 // services
-cartService, productService,
+cartService, productService, messageService,
 //view models
-BagItemModel, BagModel, CartModel, FreeShippingModel, ItemsInCartModel, ProductModel,
-    ProductsModel, ProductsModelNavigation;
+BagItemModel, BagModel, CartModel, FreeShippingModel, ItemsInCartModel, MessageModel,
+    ProductModel, ProductsModel, ProductsModelNavigation;
 
 cartService = (() => {
     var adjustQuantity, cart, channel, totals, updateTotals;
@@ -233,7 +233,7 @@ productService = (() => {
         
          found = _.find(store, (aproduct) => aproduct.id === product.id);
          /// TODO: if the found isnt found then publish to the MessageService
-         found.available = found.available + request.quantity;
+         found.available = found.available + quantity;
          return found; 
     };
 
@@ -264,9 +264,11 @@ productService = (() => {
     // demonstrate custom topic in request.replyTopic
     cartService.subscriptions.onChange((data, env) => {
         var found, quantity;
-        found = _.find(store, {id: data.changed.id});
-        quantity = -(data.quantity);
-        found.available = found.available + quantity;
+        // an increase in cart is a decrease in product and vice-versa, so flip the value
+        adjustAvailable(data.changed, -(data.quantity));
+        console.log(data.changed.available);
+        if(data.changed.available === 0) messageService.display(messageService.constants.messageTypes.alert, "You bought us out!!!");         
+        
         // if the updated item is in the currentPage, publish the change
         if(_.find(currentPage.page, {id: data.changed.id})) { 
             channel.publish('get.response', currentPage);
@@ -276,9 +278,33 @@ productService = (() => {
     return {
         get: function ProductService_Get(crit = {}) {
             // allows all viewmodels processing in current stack to complete
-            _.defer( () => postal.channel('product').publish('get.request', crit) );
+            _.defer( () => channel.publish('get.request', crit) );
         }
     };
+})();
+
+messageService = (() => {
+    var channel;
+    const messageTypes = {alert: '!', info: 'i'};
+    channel = postal.channel('message');
+    channel.subscribe('display.request', (message, env) => {
+        // check to see if there's any subscription
+        if(postal.getSubscribersFor({channel: 'message', topic:'display.response'}).length === 0) throw new Info("Please Add A Message ViewModel To The App");
+        channel.publish('display.response', message);
+    });
+    return {
+        // queue would be be good here
+        display: function(type, text) {
+            channel.publish('display.request', {type, text});
+        },
+        subscriptions: {
+            displayResponse: function MessageService_displayResponse(todo) {
+                channel.subscribe('display.response', todo);
+            }
+        },
+        constants: {messageTypes}
+
+    }
 })();
 
 CartModel = function(attributes) {
@@ -373,6 +399,29 @@ ItemsInCartModel = function() {
     });
 
     return vm;        
+};
+
+MessageModel = function _MessageModel() {
+    var vm;
+    
+        vm = {
+            text: ko.observable(null),
+            type: ko.observable(null),
+            dismiss: function() {
+                vm.text(null);
+                vm.type(null);
+            }
+        };
+        vm.show = ko.computed(() => {
+            return !_.isNull(vm.text());
+        });
+
+        messageService.subscriptions.displayResponse((data, env) => {
+            vm.text(data.text);
+            vm.type(data.type);
+        });
+    
+        return vm; 
 };
 
 ProductsModel = function(attributes) {
@@ -515,6 +564,10 @@ ko.components.register('freeshipping', {
 ko.components.register('itemsincart', {
     template:  $('#tmpl-items-in-cart').html(),
     viewModel: ItemsInCartModel
+});
+ko.components.register('message', {
+    template:  $('#tmpl-message').html(),
+    viewModel: MessageModel
 });
 
 
