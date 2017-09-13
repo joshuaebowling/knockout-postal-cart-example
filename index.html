@@ -8,6 +8,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js" type="text/javascript"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/postal.js/2.0.5/postal.min.js" type="text/javascript"></script>
   <script src="lodash-template-adapter.js" type="text/javascript"></script>
+  <script type="text/template" id="tmpl-message">
+    <div class="message" data-bind="visible: show">
+      <h3 class="message-type" data-bind="text: type"></h3>
+      <span class="message-text" data-bind="text: text"></span>
+      <button data-bind="click: dismiss" type="button">Dismiss</button>
+    </div>
+  </script>
   <script type="text/template" id="tmpl-product">
     <h3 data-bind="text: model.title"></h3>
     <span data-bind="text: model.price"></span>
@@ -55,6 +62,7 @@
     <div id="cart">
       <h1 data-bind="text: title"></h1>
       <freeshipping />
+      <message />
       <itemsInCart />
       <products />
       <hr>
