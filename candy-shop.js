@@ -3,7 +3,7 @@ productData,
 // services
 cartService, certificationService, productService, messageService,
 //view models
-BagItemModel, BagModel, CartModel, CertificationFilterViewModel, FreeShippingModel, ItemsInCartModel, MessageModel,
+BagItemModel, BagModel, CartModel, CertificationFilterModel, FreeShippingModel, ItemsInCartModel, MessageModel,
     ProductModel, ProductsModel, ProductsModelNavigation;
 
 productData = [
@@ -328,7 +328,7 @@ certificationService = (() => {
         get: () => 
             channel.publish('get.request'),
         subscriptions: {
-            getResponse: (todo) =>
+            onGet: (todo) =>
                 channel.subscribe('get.response', todo)
         }
 
@@ -507,6 +507,29 @@ ProductModel = function(context) {
     return vm;        
 };
 
+CertificationFilterModel = function(attributes) {
+    var vm;
+
+    vm = {
+        attributes: attributes,
+        certifications: ko.observableArray([]),
+        selectedCertifications: ko.observableArray([])
+    };
+
+    vm.selectedCertifications.subscribe((newVal, oldVal) => {
+        console.log(newVal);
+    });
+    // listen for when the product service returns a list of products, will also work for paging 
+    certificationService.subscriptions.onGet((certifications, env) => {
+        vm.certifications.removeAll();
+        _.each(certifications, (certification) => vm.certifications.push(certification));
+    });
+
+    certificationService.get({});
+    return vm;
+        
+};
+
 // rivets.formatters.price = function(val) {
 
 //   var spl = String(val).split('.'),
@@ -553,44 +576,46 @@ ProductModel = function(context) {
 
 
 // register components
-ko.components.register('cart', {
-    template:  $('#tmpl-cart').html(),
-    viewModel: CartModel
-});
-ko.components.register('product', {
-    template:  $('#tmpl-product').html(),
-    viewModel: ProductModel
-});
-ko.components.register('products', {
-    template:  $('#tmpl-products').html(),
-    viewModel: ProductsModel
-});
-ko.components.register('productsnavigation', {
-    template:  $('#tmpl-products-navigation').html(),
-    viewModel: ProductsModelNavigation
-});
-ko.components.register('bagitem', {
-    template:  $('#tmpl-bag-item').html(),
-    viewModel: BagItemModel
-});
-ko.components.register('bag', {
-    template:  $('#tmpl-bag').html(),
-    viewModel: BagModel
-});
-ko.components.register('freeshipping', {
-    template:  $('#tmpl-freeshipping').html(),
-    viewModel: FreeShippingModel
-});
-ko.components.register('itemsincart', {
-    template:  $('#tmpl-items-in-cart').html(),
-    viewModel: ItemsInCartModel
-});
-ko.components.register('message', {
-    template:  $('#tmpl-message').html(),
-    viewModel: MessageModel
-});
-
-
+    ko.components.register('cart', {
+        template:  $('#tmpl-cart').html(),
+        viewModel: CartModel
+    });
+    ko.components.register('product', {
+        template:  $('#tmpl-product').html(),
+        viewModel: ProductModel
+    });
+    ko.components.register('products', {
+        template:  $('#tmpl-products').html(),
+        viewModel: ProductsModel
+    });
+    ko.components.register('productsnavigation', {
+        template:  $('#tmpl-products-navigation').html(),
+        viewModel: ProductsModelNavigation
+    });
+    ko.components.register('bagitem', {
+        template:  $('#tmpl-bag-item').html(),
+        viewModel: BagItemModel
+    });
+    ko.components.register('bag', {
+        template:  $('#tmpl-bag').html(),
+        viewModel: BagModel
+    });
+    ko.components.register('freeshipping', {
+        template:  $('#tmpl-freeshipping').html(),
+        viewModel: FreeShippingModel
+    });
+    ko.components.register('itemsincart', {
+        template:  $('#tmpl-items-in-cart').html(),
+        viewModel: ItemsInCartModel
+    });
+    ko.components.register('message', {
+        template:  $('#tmpl-message').html(),
+        viewModel: MessageModel
+    });
+    ko.components.register('certificationsfilter', {
+        template:  $('#tmpl-certifications-filter').html(),
+        viewModel: CertificationFilterModel
+    });
 
 ko.applyBindings({}, $('#app')[0]);
 
