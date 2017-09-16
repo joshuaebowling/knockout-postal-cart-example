@@ -278,10 +278,15 @@ productService = (() => {
     });
 
     return {
-        get: function ProductService_Get(crit = {}) {
+        get: (crit = {}) =>
             // allows all viewmodels processing in current stack to complete
-            _.defer( () => channel.publish('get.request', crit) );
+            _.defer( () => channel.publish('get.request', crit)),
+        subscriptions: {
+            onGet: (todo) =>
+                channel.subscribe('get.response', todo) 
         }
+
+
     };
 })();
 
@@ -455,7 +460,7 @@ ProductsModel = function(attributes) {
     };
 
     // listen for when the product service returns a list of products, will also work for paging 
-    postal.channel('product').subscribe('get.response', (d, env) => {
+    productService.subscriptions.onGet((d, env) => {
         vm.products.removeAll();
         _.each(d.page, (product) => vm.products.push(product));
     });
