@@ -225,7 +225,7 @@ productService = (() => {
     const channel = postal.channel('product');
     var adjustAvailable, currentPage, critDefaults, page, store;
     
-    store =  _.map(productData, // keep it at 5 until paging is complete
+    store =  _.map(productData,
     (item, i) => { 
         item.id = i;    
         return item;
@@ -241,7 +241,7 @@ productService = (() => {
     };
 
     // pass in array when implement sorting or filtering
-    page = function _page(limit, skip = 0) {
+    page = function _page(set, limit, skip = 0) {
         // since the demo will only have item counts that are multiples of 5 & 5 is the page size
         // this naive impl will do fine
         var result;
@@ -250,7 +250,7 @@ productService = (() => {
             skip: skip + limit,
             total: store.length
         };
-        result.page =  _.slice(store, skip === store.length ? 0 : skip, limit + skip);
+        result.page =  _.slice(set, skip === store.length ? 0 : skip, limit + skip);
         return result;
     };
 
@@ -261,7 +261,10 @@ productService = (() => {
     };
     // pickup any request for cart items
     channel.subscribe('get.request', (crit, env) => { 
-        currentPage = page(crit['limit'] || critDefaults.limit, crit['skip'] || critDefaults.skip);
+        var data = crit.certifications ?
+            _.filter(store, (item) => _.intersection(item.certifications, crit.certifications).length > 0)
+            : store;
+        currentPage = page(data, crit['limit'] || critDefaults.limit, crit['skip'] || critDefaults.skip);
         channel.publish('get.response', currentPage);
     });
     // demonstrate custom topic in request.replyTopic
@@ -319,8 +322,7 @@ certificationService = (() => {
     channel = postal.channel('certification');
     channel.subscribe('get.request', (message, env) => {
         var result;
-        result = _.chain(productData).map(p => p.certifications).flatten().uniq().value();
-        console.log(result);
+        result = _.chain(productData).map(p => p.certifications).flatten().uniq().without(null).value();
         channel.publish('get.response', result);
     });
     return {
@@ -517,7 +519,7 @@ CertificationFilterModel = function(attributes) {
     };
 
     vm.selectedCertifications.subscribe((newVal, oldVal) => {
-        console.log(newVal);
+        productService.get({ certifications: newVal });
     });
     // listen for when the product service returns a list of products, will also work for paging 
     certificationService.subscriptions.onGet((certifications, env) => {
