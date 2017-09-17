@@ -223,9 +223,10 @@ cartService = (() => {
 productService = (() => {
     
     const channel = postal.channel('product');
-    var adjustAvailable, currentPage, critDefaults, page, store;
-    
-    store =  _.map(productData,
+    var adjustAvailable, currentPage, criteria, criteriate, defaultCriteria, page, resetPage, store;
+
+    criteria = {};
+    store =  _.map(_.sortBy(productData, p => p.title),
     (item, i) => { 
         item.id = i;    
         return item;
@@ -240,12 +241,26 @@ productService = (() => {
          return found; 
     };
 
+    criteriate = function ProductService_criteriate(crit) {
+        return (crit.certifications && !_.isEmpty(crit.certifications)) ?
+        _.filter(store, (item) => _.intersection(item.certifications, crit.certifications).length > 0)
+        : store;
+    };
+
+    resetPage = function ProductService_isCriteriaChanged(crit, page) {
+        var bothNil, fullyIntersected;
+        // compare filter-related properties of new criteria (crit) to saved (criteria)
+        bothNil = (_.isNil(crit['certifications']) && _.isNil(criteria['certfications']));
+        // if they are both arrays do the have the same members
+        fullyIntersected = _.intersection(_.sortBy(crit.certifications, c => c), _.sortBy(criteria.certifications, c => c)).length === _.at(crit, 'certifications.length')[0];
+        // they are both not true then there's no reason to resetPage
+        return (bothNil || fullyIntersected) ? page : 1;
+    };
     // pass in array when implement sorting or filtering
     page = function _page(set, limit, skip = 0) {
         // since the demo will only have item counts that are multiples of 5 & 5 is the page size
         // this naive impl will do fine
         var result;
-
         result = {
             skip: skip + limit,
             total: store.length
@@ -255,25 +270,27 @@ productService = (() => {
     };
 
     // the default values the crit argument passed with get.request
-    critDefaults = {
+    defaultCriteria = {
         limit: 5,
         skip: 0
     };
     // pickup any request for cart items
-    channel.subscribe('get.request', (crit, env) => { 
-        var data = crit.certifications ?
-            _.filter(store, (item) => _.intersection(item.certifications, crit.certifications).length > 0)
-            : store;
-        currentPage = page(data, crit['limit'] || critDefaults.limit, crit['skip'] || critDefaults.skip);
-        channel.publish('get.response', currentPage);
+    channel.subscribe('get.request', (crit, env) => {
+        var data;
+        crit = _.defaults(crit, _.defaults(criteria, defaultCriteria));
+        // store the criteria so paging doesn't interfere with filters
+        criteria = _.defaults(crit, defaultCriteria); 
+        currentPage = page(criteriate(crit), crit.limit, resetPage(crit, crit.skip));
+        channel.publish('get.response', { result: currentPage, criteria });
     });
+
+
     // demonstrate custom topic in request.replyTopic
     cartService.subscriptions.onChange((data, env) => {
         var found, quantity;
         // an increase in cart is a decrease in product and vice-versa, so flip the value
         adjustAvailable(data.changed, -(data.quantity));
-        if(data.changed.available === 0) messageService.display(messageService.constants.messageTypes.alert, "You bought us out!!!");         
-        
+        if(data.changed.available === 0) messageService.display(messageService.constants.messageTypes.alert, "You bought us out!!!");
         // if the updated item is in the currentPage, publish the change
         if(_.find(currentPage.page, {id: data.changed.id})) { 
             channel.publish('get.response', currentPage);
@@ -286,11 +303,10 @@ productService = (() => {
             _.defer( () => channel.publish('get.request', crit)),
         subscriptions: {
             onGet: (todo) =>
-                channel.subscribe('get.response', todo) 
+                channel.subscribe('get.response', todo)
         }
-
-
     };
+
 })();
 
 messageService = (() => {
@@ -462,14 +478,13 @@ ProductsModel = function(attributes) {
     };
 
     // listen for when the product service returns a list of products, will also work for paging 
-    productService.subscriptions.onGet((d, env) => {
+    productService.subscriptions.onGet((payload, env) => {
         vm.products.removeAll();
-        _.each(d.page, (product) => vm.products.push(product));
+        _.each(payload.result.page, (product) => vm.products.push(product));
     });
 
     productService.get({});
     return vm;
-        
 };
 
 ProductsModelNavigation = function() {
@@ -489,10 +504,10 @@ ProductsModelNavigation = function() {
         productService.get({ limit: vm.pageSize, skip: vm.skip() - ( vm.pageSize * 2 ) });
 
 
-    postal.channel('product').subscribe('get.response', (d, env) => {
-        vm.currentPage(d.skip/vm.pageSize);
-        vm.hasMorePages(d.skip < d.total);
-        vm.hasLessPages(d.skip/vm.pageSize > 1);
+    productService.subscriptions.onGet((payload, env) => {
+        vm.currentPage(_.floor(payload.result.skip / vm.pageSize))  ;
+        vm.hasMorePages(payload.result.skip < payload.result.total);
+        vm.hasLessPages(payload.result.skip / vm.pageSize > 1);
     });
 
     return vm;        
@@ -578,46 +593,46 @@ CertificationFilterModel = function(attributes) {
 
 
 // register components
-    ko.components.register('cart', {
-        template:  $('#tmpl-cart').html(),
-        viewModel: CartModel
-    });
-    ko.components.register('product', {
-        template:  $('#tmpl-product').html(),
-        viewModel: ProductModel
-    });
-    ko.components.register('products', {
-        template:  $('#tmpl-products').html(),
-        viewModel: ProductsModel
-    });
-    ko.components.register('productsnavigation', {
-        template:  $('#tmpl-products-navigation').html(),
-        viewModel: ProductsModelNavigation
-    });
-    ko.components.register('bagitem', {
-        template:  $('#tmpl-bag-item').html(),
-        viewModel: BagItemModel
-    });
-    ko.components.register('bag', {
-        template:  $('#tmpl-bag').html(),
-        viewModel: BagModel
-    });
-    ko.components.register('freeshipping', {
-        template:  $('#tmpl-freeshipping').html(),
-        viewModel: FreeShippingModel
-    });
-    ko.components.register('itemsincart', {
-        template:  $('#tmpl-items-in-cart').html(),
-        viewModel: ItemsInCartModel
-    });
-    ko.components.register('message', {
-        template:  $('#tmpl-message').html(),
-        viewModel: MessageModel
-    });
-    ko.components.register('certificationsfilter', {
-        template:  $('#tmpl-certifications-filter').html(),
-        viewModel: CertificationFilterModel
-    });
+ko.components.register('cart', {
+    template:  $('#tmpl-cart').html(),
+    viewModel: CartModel
+});
+ko.components.register('product', {
+    template:  $('#tmpl-product').html(),
+    viewModel: ProductModel
+});
+ko.components.register('products', {
+    template:  $('#tmpl-products').html(),
+    viewModel: ProductsModel
+});
+ko.components.register('productsnavigation', {
+    template:  $('#tmpl-products-navigation').html(),
+    viewModel: ProductsModelNavigation
+});
+ko.components.register('bagitem', {
+    template:  $('#tmpl-bag-item').html(),
+    viewModel: BagItemModel
+});
+ko.components.register('bag', {
+    template:  $('#tmpl-bag').html(),
+    viewModel: BagModel
+});
+ko.components.register('freeshipping', {
+    template:  $('#tmpl-freeshipping').html(),
+    viewModel: FreeShippingModel
+});
+ko.components.register('itemsincart', {
+    template:  $('#tmpl-items-in-cart').html(),
+    viewModel: ItemsInCartModel
+});
+ko.components.register('message', {
+    template:  $('#tmpl-message').html(),
+    viewModel: MessageModel
+});
+ko.components.register('certificationsfilter', {
+    template:  $('#tmpl-certifications-filter').html(),
+    viewModel: CertificationFilterModel
+});
 
 ko.applyBindings({}, $('#app')[0]);
 
