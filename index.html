@@ -18,7 +18,7 @@
   </script>
   <script type="text/template" id="tmpl-products-navigation">
     <button type="button" data-bind="click: prevPage, enable: hasLessPages">Verp</button>
-    <span>Page: <span data-bind="text: currentPage" /></span>
+    <span>Page: <span data-bind="text: currentPage" /> of <span data-bind="text: totalPages" /></span>
     <button type="button" data-bind="click: nextPage, enable: hasMorePages">Next</button>
   </script>
   <script type="text/template" id="tmpl-bag-item">
