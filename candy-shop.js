@@ -1,9 +1,152 @@
 var 
+productData, 
 // services
-cartService, productService, messageService,
+cartService, certificationService, productService, messageService,
 //view models
-BagItemModel, BagModel, CartModel, FreeShippingModel, ItemsInCartModel, MessageModel,
+BagItemModel, BagModel, CartModel, CertificationFilterModel, FreeShippingModel, ItemsInCartModel, MessageModel,
     ProductModel, ProductsModel, ProductsModelNavigation;
+
+productData = [
+    {
+        title: 'Coffee',
+        price: 14.95,
+        available: 27,
+        discountAfter: 6,
+        certifications: ['USDA Organic', 'GMO Free', 'Fair Trade'],
+        tags: ['Origin:Costa Rica', 'Descriptor:Light Roast', 'Flavor: Mild & Nutty'],
+        rating: 10
+    },
+    {
+        title: 'fruit leather',
+        price: 0.5,
+        available: 50,
+        discountAfter: 6,
+        certifications: ['USDA Organic', 'GMO Free'],
+        tags: ['Origin:Costa Rica', 'Descriptor:Light Roast', 'Flavor: Mild & Nutty'],
+        rating: 9
+    },
+    {
+        title: 'mid-level fancy wine',
+        price: 89.12,
+        available: 13,
+        discountAfter: 6,
+        certifications: ['GMO Free'],
+        tags: ['Origin:Italy', 'Grape:Chianti', 'Flavor: Floral + Smooth Finish'],
+        rating: 6
+    },
+    {
+        title: 'moon round trip ticket',
+        price: 22450,
+        available: 4,
+        discountAfter: 6,
+        certifications: ['GMO Free'],
+        tags: ['Departs:Tomorrow', 'Returns:LOL, BC', 'Seating:Business Class'],
+        rating: null
+    },
+    {
+        title: 'champagne',
+        price: 45,
+        available: 7,
+        discountAfter: 6,
+        certifications: ['GMO Free'],
+        tags: ['Origin:France', 'Grape:Buena Pregunta', 'Flavor: Bubbly'],
+        rating: 6
+        
+    },
+    {
+        title: 'Pea Protein Powder',
+        price: 14.95,
+        available: 23,
+        discountAfter: 6,
+        certifications: ['USDA Organic', 'GMO Free'],
+        tags: ['Buzz: Branched-Chain Amino Acids', 'Flavor:Meh', 'Recommender: Dr Feelgo Ood'],
+        rating: 8
+    },
+    {
+        title: 'Egg',
+        price: 0.5,
+        available: 500,
+        discountAfter: 12,
+        certifications: ['USDA Organic', 'GMO Free', 'Free Range'],
+        tags: ['Origin:Local', 'Flavor: Chickeny'],
+        rating: 9
+    },
+    {
+        title: 'Ribeye',
+        price: 50.12,
+        available: 13,
+        discountAfter: null,
+        certifications: ['UDSA Organic', 'USDA Prime'],
+        tags: ['Origin:Texas', 'Average Weight: 1 lb', 'Feed:Grass'],
+        rating: 9
+    },
+    {
+        title: 'Total Recall',
+        price: 27450,
+        available: NaN,
+        discountAfter: null,
+        certifications: ['APA'],
+        tags: ['Name:Quaid', 'Muscles:Big', 'Seating:Mostly Running'],
+        rating: 4
+    },
+    {
+        title: 'Men\'s Multivitamin',
+        price: 45,
+        available: 18,
+        discountAfter: 6,
+        certifications: ['GMO Free', 'USDA Organic', 'Whole Food'],
+        tags: ['Raw', 'Vegan', '44 Superfoods'],
+        rating: 6
+        
+    },
+    {
+        title: 'Rye Berries',
+        price: 14.95,
+        available: 27,
+        discountAfter: 6,
+        certifications: ['USDA Organic', 'GMO Free', 'Fair Trade'],
+        tags: ['Amount:1lb', 'Awesome Use:Mycology'],
+        rating: 10
+    },
+    {
+        title: 'Ketchup',
+        price: 5,
+        available: 24,
+        discountAfter: 6,
+        certifications: ['USDA Organic', 'GMO Free'],
+        tags: ['Roma Tomatoes', 'Amount:8 oz', 'Color:Green'],
+        rating: 9
+    },
+    {
+        title: 'Cheddar Hoop',
+        price: 87.12,
+        available: 13,
+        discountAfter: null,
+        certifications: ['GMO Free', 'USDA Organic'],
+        tags: ['Color:White', 'Origin:Wisconsin', 'Flavor:Sharp'],
+        rating: 3
+    },
+    {
+        title: 'Journey to Center of Earth in Time Machine',
+        price: 22450,
+        available: 3,
+        discountAfter: 6,
+        certifications: null,
+        tags: ['Departs:Yesterday', 'Returns:Do you have to ask?', 'NO AC'],
+        rating: null
+    },
+    {
+        title: 'Pine Nuts',
+        price: 17,
+        available: 14,
+        discountAfter: 6,
+        certifications: ['GMO Free', 'USDA Organic'],
+        tags: ['Origin:Washington State', 'Awesome Use: Hummus'],
+        rating: 7
+        
+    }
+    
+];
 
 cartService = (() => {
     var adjustQuantity, cart, channel, totals, updateTotals;
@@ -13,10 +156,10 @@ cartService = (() => {
         totals: {
             subTotal: 0,
             get tax() {
-                return cart.totals.subTotal * .05;
+                return _.round(cart.totals.subTotal * .05, 2);
             },
             get total() {
-                return cart.totals.subTotal + cart.totals.tax;
+                return _.round(cart.totals.subTotal + cart.totals.tax, 2);
             },
             get itemsInCart() {
                 var result;
@@ -80,149 +223,10 @@ cartService = (() => {
 productService = (() => {
     
     const channel = postal.channel('product');
-    var adjustAvailable, currentPage, critDefaults, page, store;
-    
-    store =  _.map([
-            {
-                title: 'Coffee',
-                price: 14.95,
-                available: 27,
-                discountAfter: 6,
-                certifications: ['USDA Organic', 'GMO Free', 'Fair Trade'],
-                tags: ['Origin:Costa Rica', 'Descriptor:Light Roast', 'Flavor: Mild & Nutty'],
-                rating: 10
-            },
-            {
-                title: 'fruit leather',
-                price: 0.5,
-                available: 50,
-                discountAfter: 6,
-                certifications: ['USDA Organic', 'GMO Free'],
-                tags: ['Origin:Costa Rica', 'Descriptor:Light Roast', 'Flavor: Mild & Nutty'],
-                rating: 9
-            },
-            {
-                title: 'mid-level fancy wine',
-                price: 89.12546,
-                available: 13,
-                discountAfter: 6,
-                certifications: ['GMO Free'],
-                tags: ['Origin:Italy', 'Grape:Chianti', 'Flavor: Floral + Smooth Finish'],
-                rating: 6
-            },
-            {
-                title: 'moon round trip ticket',
-                price: 22450,
-                available: 4,
-                discountAfter: 6,
-                certifications: ['GMO Free'],
-                tags: ['Departs:Tomorrow', 'Returns:LOL, BC', 'Seating:Business Class'],
-                rating: null
-            },
-            {
-                title: 'champagne',
-                price: 45,
-                available: 7,
-                discountAfter: 6,
-                certifications: ['GMO Free'],
-                tags: ['Origin:France', 'Grape:Buena Pregunta', 'Flavor: Bubbly'],
-                rating: 6
-                
-            },
-            {
-                title: 'Pea Protein Powder',
-                price: 14.95,
-                available: 23,
-                discountAfter: 6,
-                certifications: ['USDA Organic', 'GMO Free'],
-                tags: ['Buzz: Branched-Chain Amino Acids', 'Flavor:Meh', 'Recommender: Dr Feelgo Ood'],
-                rating: 8
-            },
-            {
-                title: 'Egg',
-                price: 0.5,
-                available: 500,
-                discountAfter: 12,
-                certifications: ['USDA Organic', 'GMO Free', 'Free Range'],
-                tags: ['Origin:Local', 'Flavor: Chickeny'],
-                rating: 9
-            },
-            {
-                title: 'Ribeye',
-                price: 50.12546,
-                available: 13,
-                discountAfter: null,
-                certifications: ['UDSA Organic', 'USDA Prime'],
-                tags: ['Origin:Texas', 'Average Weight: 1 lb', 'Feed:Grass'],
-                rating: 9
-            },
-            {
-                title: 'Total Recall',
-                price: 27450,
-                available: NaN,
-                discountAfter: null,
-                certifications: ['APA'],
-                tags: ['Name:Quaid', 'Muscles:Big', 'Seating:Mostly Running'],
-                rating: 4
-            },
-            {
-                title: 'Men\'s Multivitamin',
-                price: 45,
-                available: 18,
-                discountAfter: 6,
-                certifications: ['GMO Free', 'USDA Organic', 'Whole Food'],
-                tags: ['Raw', 'Vegan', '44 Superfoods'],
-                rating: 6
-                
-            },
-            {
-                title: 'Rye Berries',
-                price: 14.95,
-                available: 27,
-                discountAfter: 6,
-                certifications: ['USDA Organic', 'GMO Free', 'Fair Trade'],
-                tags: ['Amount:1lb', 'Awesome Use:Mycology'],
-                rating: 10
-            },
-            {
-                title: 'Ketchup',
-                price: 5,
-                available: 24,
-                discountAfter: 6,
-                certifications: ['USDA Organic', 'GMO Free'],
-                tags: ['Roma Tomatoes', 'Amount:8 oz', 'Color:Green'],
-                rating: 9
-            },
-            {
-                title: 'Cheddar Hoop',
-                price: 87.12546,
-                available: 13,
-                discountAfter: null,
-                certifications: ['GMO Free', 'USDA Organic'],
-                tags: ['Color:White', 'Origin:Wisconsin', 'Flavor:Sharp'],
-                rating: 3
-            },
-            {
-                title: 'Journey to Center of Earth in Time Machine',
-                price: 22450,
-                available: 3,
-                discountAfter: 6,
-                certifications: null,
-                tags: ['Departs:Yesterday', 'Returns:Do you have to ask?', 'NO AC'],
-                rating: null
-            },
-            {
-                title: 'Pine Nuts',
-                price: 17,
-                available: 14,
-                discountAfter: 6,
-                certifications: ['GMO Free', 'USDA Organic'],
-                tags: ['Origin:Washington State', 'Awesome Use: Hummus'],
-                rating: 7
-                
-            }
-            
-        ], // keep it at 5 until paging is complete
+    var adjustAvailable, currentPage, criteria, criteriate, defaultCriteria, page, resetPage, store;
+
+    criteria = {};
+    store =  _.map(_.sortBy(productData, p => p.title),
     (item, i) => { 
         item.id = i;    
         return item;
@@ -237,50 +241,73 @@ productService = (() => {
          return found; 
     };
 
+    criteriate = function ProductService_criteriate(crit) {
+        return (crit.certifications && !_.isEmpty(crit.certifications)) ?
+        _.filter(store, (item) => _.intersection(item.certifications, crit.certifications).length > 0)
+        : store;
+    };
+
+    resetPage = function ProductService_isCriteriaChanged(crit, page) {
+        var bothNil, fullyIntersected;
+        // compare filter-related properties of new criteria (crit) to saved (criteria)
+        bothNil = (_.isNil(crit['certifications']) && _.isNil(criteria['certfications']));
+        // if they are both arrays do the have the same members
+        fullyIntersected = _.intersection(_.sortBy(crit.certifications, c => c), _.sortBy(criteria.certifications, c => c)).length === _.at(crit, 'certifications.length')[0];
+        // they are both not true then there's no reason to resetPage
+        return (bothNil || fullyIntersected) ? page : 1;
+    };
     // pass in array when implement sorting or filtering
-    page = function _page(limit, skip = 0) {
+    page = function _page(set, limit, skip = 0) {
         // since the demo will only have item counts that are multiples of 5 & 5 is the page size
         // this naive impl will do fine
         var result;
-
         result = {
             skip: skip + limit,
-            total: store.length
+            total: set.length
         };
-        result.page =  _.slice(store, skip === store.length ? 0 : skip, limit + skip);
+        result.page =  _.slice(set, skip === store.length ? 0 : skip, limit + skip);
         return result;
     };
 
     // the default values the crit argument passed with get.request
-    critDefaults = {
+    defaultCriteria = {
         limit: 5,
         skip: 0
     };
     // pickup any request for cart items
-    channel.subscribe('get.request', (crit, env) => { 
-        currentPage = page(crit['limit'] || critDefaults.limit, crit['skip'] || critDefaults.skip);
-        channel.publish('get.response', currentPage);
+    channel.subscribe('get.request', (crit, env) => {
+        var data;
+        crit = _.defaults(crit, _.defaults(criteria, defaultCriteria));
+        crit.skip = resetPage(crit, crit.skip);
+        // store the criteria so paging doesn't interfere with filters
+        criteria = _.defaults(crit, defaultCriteria); 
+        currentPage = page(criteriate(crit), crit.limit, crit.skip);
+        channel.publish('get.response', { result: currentPage, criteria });
     });
+
+
     // demonstrate custom topic in request.replyTopic
     cartService.subscriptions.onChange((data, env) => {
         var found, quantity;
         // an increase in cart is a decrease in product and vice-versa, so flip the value
         adjustAvailable(data.changed, -(data.quantity));
-        console.log(data.changed.available);
-        if(data.changed.available === 0) messageService.display(messageService.constants.messageTypes.alert, "You bought us out!!!");         
-        
+        if(data.changed.available === 0) messageService.display(messageService.constants.messageTypes.alert, "You bought us out!!!");
         // if the updated item is in the currentPage, publish the change
         if(_.find(currentPage.page, {id: data.changed.id})) { 
-            channel.publish('get.response', currentPage);
+            channel.publish('get.response', {result: currentPage, criteria});
         }
     });
 
     return {
-        get: function ProductService_Get(crit = {}) {
+        get: (crit = {}) =>
             // allows all viewmodels processing in current stack to complete
-            _.defer( () => channel.publish('get.request', crit) );
+            _.defer( () => channel.publish('get.request', crit)),
+        subscriptions: {
+            onGet: (todo) =>
+                channel.subscribe('get.response', todo)
         }
     };
+
 })();
 
 messageService = (() => {
@@ -306,6 +333,27 @@ messageService = (() => {
 
     }
 })();
+
+certificationService = (() => {
+    var channel;
+    channel = postal.channel('certification');
+    channel.subscribe('get.request', (message, env) => {
+        var result;
+        result = _.chain(productData).map(p => p.certifications).flatten().uniq().without(null).value();
+        channel.publish('get.response', result);
+    });
+    return {
+        // queue would be be good here
+        get: () => 
+            channel.publish('get.request'),
+        subscriptions: {
+            onGet: (todo) =>
+                channel.subscribe('get.response', todo)
+        }
+
+    }
+})();
+
 
 CartModel = function(attributes) {
     var vm;
@@ -357,12 +405,10 @@ BagItemModel = function(context) {
 
     vm = {
         model: context.model,
-        addItem: function() {
-          cartService.change(vm.model, 1);
-        },
-        removeItem: function() {
-          cartService.change(vm.model, -1);
-        } 
+        addItem: () =>
+          cartService.change(vm.model, 1),
+        removeItem: () =>
+          cartService.change(vm.model, -1)
     };
 
     return vm;      
@@ -433,14 +479,14 @@ ProductsModel = function(attributes) {
     };
 
     // listen for when the product service returns a list of products, will also work for paging 
-    postal.channel('product').subscribe('get.response', (d, env) => {
+    productService.subscriptions.onGet((payload, env) => {
+        var products;
         vm.products.removeAll();
-        _.each(d.page, (product) => vm.products.push(product));
+        _.each(payload.result.page, (product) => vm.products.push(product));
     });
 
     productService.get({});
     return vm;
-        
 };
 
 ProductsModelNavigation = function() {
@@ -450,21 +496,22 @@ ProductsModelNavigation = function() {
         currentPage: ko.observable(1),
         pageSize: 5, // will observe this
         hasMorePages: ko.observable(true),
-        hasLessPages: ko.observable(true)
+        hasLessPages: ko.observable(true),
+        totalPages: ko.observable(1)
     };
 
     vm.skip = ko.computed(() => vm.currentPage() * vm.pageSize);
-    vm.nextPage = function() {
+    vm.nextPage = () =>
         productService.get({ limit: vm.pageSize, skip: vm.skip() });
-    };
-    vm.prevPage = function() {
+    vm.prevPage = () =>
         productService.get({ limit: vm.pageSize, skip: vm.skip() - ( vm.pageSize * 2 ) });
-    };
 
-    postal.channel('product').subscribe('get.response', (d, env) => {
-        vm.currentPage(d.skip/vm.pageSize);
-        vm.hasMorePages(d.skip < d.total);
-        vm.hasLessPages(d.skip/vm.pageSize > 1);
+
+    productService.subscriptions.onGet((payload, env) => {
+        vm.currentPage(_.floor(payload.result.skip / vm.pageSize))  ;
+        vm.hasMorePages(_.floor(payload.result.skip < payload.result.total));
+        vm.hasLessPages(_.floor(payload.result.skip / vm.pageSize) > 1);
+        vm.totalPages(_.floor(payload.result.total / vm.pageSize) + ((payload.result.total % vm.pageSize > 0) ? 1 : 0) );
     });
 
     return vm;        
@@ -475,20 +522,37 @@ ProductModel = function(context) {
 
     vm = {
         model: context.model,        
-        addToBag: function() {
-            cartService.change(context.model, 1);
-        }
+        addToBag: () =>
+            cartService.change(context.model, 1)
     };
     return vm;        
 };
 
+CertificationFilterModel = function(attributes) {
+    var vm;
 
+    vm = {
+        attributes: attributes,
+        certifications: ko.observableArray([]),
+        selectedCertifications: ko.observableArray([])
+    };
 
+    vm.selectedCertifications.subscribe((newVal, oldVal) => {
+        productService.get({ certifications: newVal });
+    });
+    // listen for when the product service returns a list of products, will also work for paging 
+    certificationService.subscriptions.onGet((certifications, env) => {
+        vm.certifications.removeAll();
+        _.each(certifications, (certification) => vm.certifications.push(certification));
+    });
 
-
+    certificationService.get({});
+    return vm;
+        
+};
 
 // rivets.formatters.price = function(val) {
-  
+
 //   var spl = String(val).split('.'),
 //     dollarsArray = spl[0].split(''),
 //     lastDollar = dollarsArray.length - 1,
@@ -569,8 +633,10 @@ ko.components.register('message', {
     template:  $('#tmpl-message').html(),
     viewModel: MessageModel
 });
-
-
+ko.components.register('certificationsfilter', {
+    template:  $('#tmpl-certifications-filter').html(),
+    viewModel: CertificationFilterModel
+});
 
 ko.applyBindings({}, $('#app')[0]);
 

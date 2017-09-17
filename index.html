@@ -3,11 +3,6 @@
   <head>
   <title>Candy Shop</title>    
   <link rel="stylesheet" href="candy-shop.css">
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-debug.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" type="text/javascript"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js" type="text/javascript"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/postal.js/2.0.5/postal.min.js" type="text/javascript"></script>
-  <script src="lodash-template-adapter.js" type="text/javascript"></script>
   <script type="text/template" id="tmpl-message">
     <div class="message" data-bind="visible: show">
       <h3 class="message-type" data-bind="text: type"></h3>
@@ -23,7 +18,7 @@
   </script>
   <script type="text/template" id="tmpl-products-navigation">
     <button type="button" data-bind="click: prevPage, enable: hasLessPages">Verp</button>
-    <span>Page: <span data-bind="text: currentPage" /></span>
+    <span>Page: <span data-bind="text: currentPage" /> of <span data-bind="text: totalPages" /></span>
     <button type="button" data-bind="click: nextPage, enable: hasMorePages">Next</button>
   </script>
   <script type="text/template" id="tmpl-bag-item">
@@ -40,6 +35,11 @@
         <product params="model: $data"/>
       </li>
     </ul>
+  </script>
+  <script type="text/template" id="tmpl-certifications-filter">
+    <h3>Certifications</h3>
+    <select data-bind="options: certifications, selectedOptions: selectedCertifications" multiple="true">      
+    </select>
   </script>
   <script type="text/template" id="tmpl-bag">
     <h3>Shopping Bag</h3>
@@ -62,6 +62,7 @@
     <div id="cart">
       <h1 data-bind="text: title"></h1>
       <freeshipping />
+      <certificationsfilter />
       <message />
       <itemsInCart />
       <products />
@@ -87,6 +88,11 @@
     <div id="app">
       <cart />
     </div>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/postal.js/2.0.5/postal.min.js" type="text/javascript"></script>
+    <script src="lodash-template-adapter.js" type="text/javascript"></script>
     <script type="text/javascript" src="candy-shop.js"></script>
   </body>
 </html>
