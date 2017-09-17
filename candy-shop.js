@@ -27,7 +27,7 @@ productData = [
     },
     {
         title: 'mid-level fancy wine',
-        price: 89.12546,
+        price: 89.12,
         available: 13,
         discountAfter: 6,
         certifications: ['GMO Free'],
@@ -73,7 +73,7 @@ productData = [
     },
     {
         title: 'Ribeye',
-        price: 50.12546,
+        price: 50.12,
         available: 13,
         discountAfter: null,
         certifications: ['UDSA Organic', 'USDA Prime'],
@@ -119,7 +119,7 @@ productData = [
     },
     {
         title: 'Cheddar Hoop',
-        price: 87.12546,
+        price: 87.12,
         available: 13,
         discountAfter: null,
         certifications: ['GMO Free', 'USDA Organic'],
@@ -156,10 +156,10 @@ cartService = (() => {
         totals: {
             subTotal: 0,
             get tax() {
-                return cart.totals.subTotal * .05;
+                return _.round(cart.totals.subTotal * .05, 2);
             },
             get total() {
-                return cart.totals.subTotal + cart.totals.tax;
+                return _.round(cart.totals.subTotal + cart.totals.tax, 2);
             },
             get itemsInCart() {
                 var result;
