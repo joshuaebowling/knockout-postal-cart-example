@@ -1,8 +1,7 @@
 const 
-    postal = require('postal'),
-    _ = require('lodash'),
-// this will be a contstructor, but in the index it will be a singleton
-CartService = function ctor_CartService() {
+postal = require('postal'),
+_ = require('lodash');
+module.exports = _.memoize(function ctor_CartService() {
     var adjustQuantity, cart, channel, totals, updateTotals;
     channel = postal.channel('cart');
     cart = {
@@ -65,14 +64,10 @@ CartService = function ctor_CartService() {
         change: function(item, quantity) {
             postal.channel('cart').publish('change.request', { item, quantity });
         },
-        // not sure about this pattern
         subscriptions: {
             // lets see about currying this 
             onChange: function(todo) { channel.subscribe('change.response', todo) },
             anyResponse: function(todo) { channel.subscribe('*.response', todo) }
         }
     };
-};
-
-
-module.exports = CartService;
+});
