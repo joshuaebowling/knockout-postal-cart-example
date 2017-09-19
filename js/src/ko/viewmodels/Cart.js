@@ -1,23 +1,20 @@
-module.exports = function(attributes) {
+const ko = require('ko');
+
+module.exports = function CartModel(attributes) {
     var vm;
 
     vm = {
         attributes: attributes,
-        title: 'Welcome to the Postal Smart Cart',
-        subtotal: ko.observable(0),
-        tax: ko.observable(0),
-        total: ko.observable(0)
+        bag: ko.observableArray([])
     };
-    vm.show = ko.computed(() => { 
-        return vm.subtotal() > 0; 
-    });
-    
+
     // subscriptions for controller
     cartService.subscriptions.anyResponse((data, env) => {
-        // same thing here, replace each value
-        vm.subtotal(data.cart.totals.subTotal);
-        vm.tax(data.cart.totals.tax);
-        vm.total(data.cart.totals.total);
+        // clear it
+        vm.bag.removeAll();
+        // repopulate without changing the reference -- rivets won't pickup on it changes like vm.bag = x, you have to repopulate the original array
+        _.each(data.cart.store, (item) => vm.bag.push(item));
     });
+
     return vm;
 };
