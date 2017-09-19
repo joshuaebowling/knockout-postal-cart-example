@@ -1,3 +1,6 @@
 module.exports = {
-    cart: new require('./Cart')()
+    cart: require('./Cart'),
+    certification: require('./Certification'),
+    Message: require('./Message'),
+    Product: require('./Product') 
 };
