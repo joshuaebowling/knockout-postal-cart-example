@@ -1,8 +1,9 @@
 const ko = require('ko');
 
-module.exports = function AppModel(attributes) {
-    var vm;
+module.exports = function AppModel(services, attributes) {
+    var cartService, vm;
 
+    cartService = services.cartService;
     vm = {
         attributes: attributes,
         title: 'Welcome to the Postal Smart Cart',
