@@ -1,8 +1,9 @@
 const ko = require('ko');
 
-module.exports = function CartItemModel(context) {
-    var vm;
+module.exports = function CartItemModel(services, context) {
+    var cartService, vm;
 
+    cartService = services.cartService;
     vm = {
         model: context.model,
         addItem: () =>
