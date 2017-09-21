@@ -1,16 +1,14 @@
 const ko = require('ko');
 
 module.exports = function AppModel(services, attributes) {
-    var cartService, vm;
-
-    cartService = services.cartService;
-    vm = {
+    const vm = {
         attributes: attributes,
         title: 'Welcome to the Postal Smart Cart',
         subtotal: ko.observable(0),
         tax: ko.observable(0),
         total: ko.observable(0)
     };
+
     vm.show = ko.computed(() => { 
         return vm.subtotal() > 0; 
     });
