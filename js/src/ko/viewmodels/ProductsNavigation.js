@@ -2,10 +2,8 @@ const
     ko = require('ko'),
     _ = require('lodash');
 
-module.exports = function ProductsNavigationModel() {
-    var vm;
-    
-    vm = {
+module.exports = function ProductsNavigationModel(services, attributes) {
+    const vm = {
         currentPage: ko.observable(1),
         pageSize: 5, // will observe this
         hasMorePages: ko.observable(true),
@@ -15,12 +13,11 @@ module.exports = function ProductsNavigationModel() {
 
     vm.skip = ko.computed(() => vm.currentPage() * vm.pageSize);
     vm.nextPage = () =>
-        productService.get({ limit: vm.pageSize, skip: vm.skip() });
+        services.productService.get({ limit: vm.pageSize, skip: vm.skip() });
     vm.prevPage = () =>
-        productService.get({ limit: vm.pageSize, skip: vm.skip() - ( vm.pageSize * 2 ) });
+        services.productService.get({ limit: vm.pageSize, skip: vm.skip() - ( vm.pageSize * 2 ) });
 
-
-    productService.subscriptions.onGet((payload, env) => {
+    services.productService.subscriptions.onGet((payload, env) => {
         vm.currentPage(_.floor(payload.result.skip / vm.pageSize))  ;
         vm.hasMorePages(_.floor(payload.result.skip < payload.result.total));
         vm.hasLessPages(_.floor(payload.result.skip / vm.pageSize) > 1);
