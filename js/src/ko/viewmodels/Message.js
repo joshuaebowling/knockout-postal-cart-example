@@ -2,9 +2,8 @@ const
     ko = require('ko'),
     _ = require('lodash');
 
-module.exports = function MessageModel() {
-    var vm;
-    vm = {
+module.exports = function MessageModel(services, attributes) {
+    const vm = {
         text: ko.observable(null),
         type: ko.observable(null),
         dismiss: function() {
@@ -16,7 +15,7 @@ module.exports = function MessageModel() {
         return !_.isNull(vm.text());
     });
 
-    messageService.subscriptions.displayResponse((data, env) => {
+    services.messageService.subscriptions.displayResponse((data, env) => {
         vm.text(data.text);
         vm.type(data.type);
     });
