@@ -1,6 +1,6 @@
 const ko = require('ko');
 
-module.exports = function CartModel(attributes) {
+module.exports = function CartModel(services, attributes) {
     var vm;
 
     vm = {
@@ -9,7 +9,7 @@ module.exports = function CartModel(attributes) {
     };
 
     // subscriptions for controller
-    cartService.subscriptions.anyResponse((data, env) => {
+    services.cartService.subscriptions.anyResponse((data, env) => {
         // clear it
         vm.bag.removeAll();
         // repopulate without changing the reference -- rivets won't pickup on it changes like vm.bag = x, you have to repopulate the original array
