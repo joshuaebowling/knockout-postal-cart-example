@@ -1,13 +1,11 @@
 const ko = require('ko');
 
-module.exports = function ItemsInCartModel() {
-    var vm;
-
-    vm = {
+module.exports = function ItemsInCartModel(services, attributes) {
+    const vm = {
         itemsInCart: ko.observable(0)
     };
 
-    cartService.subscriptions.anyResponse((data, env) => {
+    services.cartService.subscriptions.anyResponse((data, env) => {
         vm.itemsInCart(data.cart.totals.itemsInCart);
     });
 
