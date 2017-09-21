@@ -14,7 +14,7 @@ module.exports = function AppModel(services, attributes) {
     });
     
     // subscriptions for controller
-    cartService.subscriptions.anyResponse((data, env) => {
+    services.cartService.subscriptions.anyResponse((data, env) => {
         // same thing here, replace each value
         vm.subtotal(data.cart.totals.subTotal);
         vm.tax(data.cart.totals.tax);
