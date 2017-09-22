@@ -1,5 +1,5 @@
 const
-    ko = require('ko'),
+    ko = require('../../../lib/knockout-latest'),
     _ = require('lodash');
 
 module.exports = function MessageModel(services, attributes) {

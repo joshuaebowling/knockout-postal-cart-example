@@ -1,8 +1,9 @@
 const
-    ko = require('ko'),
+    ko = require('../../../lib/knockout-latest'),
     _ = require('lodash');
 
 module.exports = function CertificationsModel(services, attributes) {
+    console.log(services, services.certificationService);
     const vm = {
         attributes: attributes,
         certifications: ko.observableArray([]),
@@ -17,7 +18,7 @@ module.exports = function CertificationsModel(services, attributes) {
         vm.certifications.removeAll();
         _.each(certifications, (certification) => vm.certifications.push(certification));
     });
-
-    certificationService.get({});
+    
+    _.defer(() => services.certificationService.get({}));
     return vm;
 };

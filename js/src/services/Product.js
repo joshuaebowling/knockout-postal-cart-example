@@ -1,17 +1,22 @@
 const 
 postal = require('postal'),
-_ = require('lodash');
+_ = require('lodash'),
+cartService = require('./Cart')(),
+productRepository = require('../repositories/').products;
 module.exports = _.memoize(function ctor_ProductService() {
-    
     const channel = postal.channel('product');
-    var adjustAvailable, currentPage, criteria, criteriate, defaultCriteria, page, resetPage, store;
+    var adjustAvailable, criteria, criteriate, currentPage, defaultCriteria, page, resetPage, store;
 
     criteria = {};
-    store =  _.map(_.sortBy(productData, p => p.title),
-    (item, i) => { 
-        item.id = i;    
-        return item;
+    productRepository().then((data) => {
+        store =  _.map(_.sortBy(data, p => p.title),
+            (item, i) => { 
+                item.id = i;    
+                return item;
+            }
+        );
     });
+
     adjustAvailable = function ProductService_adjustAvailable(product, quantity) {
         var found;
         
@@ -62,7 +67,7 @@ module.exports = _.memoize(function ctor_ProductService() {
         // store the criteria so paging doesn't interfere with filters
         criteria = _.defaults(crit, defaultCriteria); 
         currentPage = page(criteriate(crit), crit.limit, crit.skip);
-        channel.publish('get.response', { result: currentPage, criteria });
+        channel.publish('get.response', { result: currentPage, criteria, all: store});
     });
 
 
@@ -74,7 +79,7 @@ module.exports = _.memoize(function ctor_ProductService() {
         if(data.changed.available === 0) messageService.display(messageService.constants.messageTypes.alert, "You bought us out!!!");
         // if the updated item is in the currentPage, publish the change
         if(_.find(currentPage.page, {id: data.changed.id})) { 
-            channel.publish('get.response', {result: currentPage, criteria});
+            channel.publish('get.response', {result: currentPage, criteria, all: store});
         }
     });
 

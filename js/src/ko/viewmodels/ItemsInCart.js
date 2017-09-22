@@ -1,4 +1,4 @@
-const ko = require('ko');
+const ko = require('../../../lib/knockout-latest');
 
 module.exports = function ItemsInCartModel(services, attributes) {
     const vm = {

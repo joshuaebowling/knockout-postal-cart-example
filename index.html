@@ -21,11 +21,14 @@
     <span>Page: <span data-bind="text: currentPage" /> of <span data-bind="text: totalPages" /></span>
     <button type="button" data-bind="click: nextPage, enable: hasMorePages">Next</button>
   </script>
-  <script type="text/template" id="tmpl-bag-item">
-    <h3 data-bind="text: model.title"></h3>
+  <script type="text/template" id="tmpl-cart-item">
     <button type="button" data-bind="click: removeItem">-</button>
-    <span> Quantity <span data-bind="text: model.quantity"></span> </span>
+    <h3 class="cart-item">
+      <span data-bind="text: model.title"></span>
+     (<span data-bind="text: model.quantity"></span>)
+    </h3>
     <button type="button" data-bind="click: addItem">+</button>
+    
 </script>
   <script type="text/template" id="tmpl-products">
     <h3>Products</h3>
@@ -41,12 +44,12 @@
     <select data-bind="options: certifications, selectedOptions: selectedCertifications" multiple="true">      
     </select>
   </script>
-  <script type="text/template" id="tmpl-bag">
+  <script type="text/template" id="tmpl-cart">
     <h3>Shopping Bag</h3>
     <p data-bind="visible: bag().length === 0">You have no items in your bag.</p>
     <ul>
       <li data-bind="foreach: bag">
-        <bagitem params="model: $data" />
+        <cartitem params="model: $data" />
       </li>
     </ul>
   </script>
@@ -58,16 +61,15 @@
     <p>Items In Cart: <span data-bind="text: itemsInCart"></span></p>
   </script>
   
-  <script type="text/template" id="tmpl-cart">
-    <div id="cart">
-      <h1 data-bind="text: title"></h1>
+  <script type="text/template" id="tmpl-app">
+    <div id="app">
       <freeshipping />
       <certificationsfilter />
       <message />
       <itemsInCart />
       <products />
       <hr>
-      <bag />      
+      <cart />      
       <hr>
       <div data-bind="visible: show">
         <h3>Current Cost</h3>
@@ -83,16 +85,17 @@
       </div>
     </div>
   </script>
+  <script type="text/template" id="tmpl-app">
+    <h1 data-bind="text: title"></h1>
+    <cart>
+  </script>
+
   </head>
   <body>
-    <div id="app">
-      <cart />
+    <div id="container">
+      <app />
     </div>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" type="text/javascript"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js" type="text/javascript"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/postal.js/2.0.5/postal.min.js" type="text/javascript"></script>
-    <script src="lodash-template-adapter.js" type="text/javascript"></script>
-    <script type="text/javascript" src="candy-shop.js"></script>
+    <script type="text/javascript" src="ko.bundle.js"></script>
   </body>
 </html>

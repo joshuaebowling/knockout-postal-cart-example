@@ -1,14 +1,23 @@
 const 
 postal = require('postal'),
-_ = require('lodash');
+_ = require('lodash'),
+productService = require('./Product')();
 module.exports = _.memoize(() => {
-    var channel;
+    var channel, data, init;
     channel = postal.channel('certification');
+
     channel.subscribe('get.request', (message, env) => {
-        var result;
-        result = _.chain(productData).map(p => p.certifications).flatten().uniq().without(null).value();
-        channel.publish('get.response', result);
-    });
+        console.log('got request');
+        var products, todo, result;
+        todo = function(data) {
+            products = data.all;
+            result = _.chain(products).map(p => p.certifications).flatten().uniq().without(null).value();
+            channel.publish('get.response', result);    
+        };
+
+        productService.subscriptions.onGet(todo);
+    }).once();
+
     return {
         // queue would be be good here
         get: () => 

@@ -1,5 +1,5 @@
 const
-    ko = require('ko'),
+    ko = require('../../../lib/knockout-latest'),
     _ = require('lodash');
 
 module.exports = function ProductsModel(services, attributes) {
@@ -15,6 +15,5 @@ module.exports = function ProductsModel(services, attributes) {
         _.each(payload.result.page, (product) => vm.products.push(product));
     });
 
-    productService.get({});
     return vm;
 };
