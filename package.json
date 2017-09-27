@@ -1,0 +1,29 @@
+{
+  "name": "knockout-postal-cart-example",
+  "version": "0.0.1",
+  "description": "Knockout has been around for years and years, so also has MV*; this a new flavor MVServiceChannel where all data flows directly out of the view models via postal.js channels, connecting independent components with little effort, very similar to *the difference between wired and wireless communication*.",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joshuaebowling/knockout-postal-cart-example.git"
+  },
+  "author": "josh bowling",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joshuaebowling/knockout-postal-cart-example/issues"
+  },
+  "homepage": "https://github.com/joshuaebowling/knockout-postal-cart-example#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.0",
+    "webpack": "^3.6.0",
+    "webpack-dev-server": "^2.8.2"
+  },
+  "dependencies": {
+    "knockout": "^3.4.2"
+  }
+}
