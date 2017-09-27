@@ -1,8 +1,11 @@
 const 
-postal = require('postal'),
-_ = require('lodash'),
-cartService = require('./Cart')(),
-productRepository = require('../repositories/').products;
+    postal = require('postal'),
+    _ = require('lodash'),
+    cartService = require('./Cart')(),
+    messageService = require('./Message')(),
+    productRepository = require('../repositories/').products
+;
+
 module.exports = _.memoize(function ctor_ProductService() {
     const channel = postal.channel('product');
     var adjustAvailable, criteria, criteriate, currentPage, defaultCriteria, page, resetPage, store;
