@@ -1,69 +1,4 @@
-/******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 4);
-/******/ })
-/************************************************************************/
-/******/ ([
+webpackJsonp([0],[
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -17286,7 +17221,7 @@ new a.P;var b=new a.xb;0<b.ed&&a.Fb(b);a.b("jqueryTmplTemplateEngine",a.xb)})()}
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8), __webpack_require__(9)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(10)(module)))
 
 /***/ }),
 /* 2 */
@@ -17783,7 +17718,7 @@ _.extend( postal, {
 
 	noConflict: function noConflict() {
 		
-		if ( typeof window === "undefined" || ( typeof window !== "undefined" && "function" === "function" && __webpack_require__(10) ) ) {
+		if ( typeof window === "undefined" || ( typeof window !== "undefined" && "function" === "function" && __webpack_require__(11) ) ) {
 			throw new Error( "noConflict can only be used in browser clients which aren't using AMD modules" );
 		}
 		global.postal = prevPostal;
@@ -17979,109 +17914,15 @@ _.extend( postal, {
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const ko = __webpack_require__(0);
-
-module.exports = function ProductModel(services, context) {
-    var vm;
-
-    vm = {
-        model: context.model,
-        addToBag: () =>
-            services.cartService.change(context.model, 1)
-    };
-
-    return vm;
+module.exports = {
+    cartService: __webpack_require__(4)(),
+    certificationService: __webpack_require__(12)(),
+    messageService: __webpack_require__(15)(),
+    productService: __webpack_require__(5)() 
 };
 
 /***/ }),
 /* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-const
-    ko = __webpack_require__(0),
-    models = __webpack_require__(5);
-
-function App($, elSelector) {
-    ko.components.register('cart', {
-        template:  $('#tmpl-cart').html(),
-        viewModel: models.CartModel
-    });
-    ko.components.register('product', {
-        template:  $('#tmpl-product').html(),
-        viewModel: models.ProductModel
-    });
-    ko.components.register('products', {
-        template:  $('#tmpl-products').html(),
-        viewModel: models.ProductsModel
-    });
-    ko.components.register('productsnavigation', {
-        template:  $('#tmpl-products-navigation').html(),
-        viewModel: models.ProductsModelNavigation
-    });
-    ko.components.register('bagitem', {
-        template:  $('#tmpl-bag-item').html(),
-        viewModel: models.BagItemModel
-    });
-    ko.components.register('bag', {
-        template:  $('#tmpl-bag').html(),
-        viewModel: models.BagModel
-    });
-    ko.components.register('freeshipping', {
-        template:  $('#tmpl-freeshipping').html(),
-        viewModel: models.FreeShippingModel
-    });
-    ko.components.register('itemsincart', {
-        template:  $('#tmpl-items-in-cart').html(),
-        viewModel: models.ItemsInCartModel
-    });
-    ko.components.register('message', {
-        template:  $('#tmpl-message').html(),
-        viewModel: models.MessageModel
-    });
-    ko.components.register('certificationsfilter', {
-        template:  $('#tmpl-certifications-filter').html(),
-        viewModel: models.CertificationFilterModel
-    });
-    
-    ko.applyBindings({}, $(elSelector)[0]);
-};
-
-App(jQuery, '#app');
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-const services = __webpack_require__(6),
-partial = __webpack_require__(1).partial;
-
-module.exports = {
-    App: partial(__webpack_require__(14), services),
-    Cart: partial(__webpack_require__(15), services),
-    CartItem: partial(__webpack_require__(16), services),
-    Certification: partial(__webpack_require__(17), services),
-    FreeShipping: partial(__webpack_require__(18), services),
-    ItemsInCart: partial(__webpack_require__(19), services),
-    Message: partial(__webpack_require__(20), services),
-    Product: partial(__webpack_require__(3), services),
-    Products: partial(__webpack_require__(21), services),
-    Product: partial(__webpack_require__(3), services),
-    ProductsNavigation: partial(__webpack_require__(22), services)
-};
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = {
-    cartService: __webpack_require__(7)(),
-    certificationService: __webpack_require__(11)(),
-    MessageService: __webpack_require__(12)(),
-    ProductService: __webpack_require__(13)() 
-};
-
-/***/ }),
-/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const 
@@ -18159,145 +18000,28 @@ module.exports = _.memoize(function ctor_CartService() {
 });
 
 /***/ }),
-/* 8 */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports) {
-
-module.exports = function(module) {
-	if(!module.webpackPolyfill) {
-		module.deprecate = function() {};
-		module.paths = [];
-		// module.parent = undefined by default
-		if(!module.children) module.children = [];
-		Object.defineProperty(module, "loaded", {
-			enumerable: true,
-			get: function() {
-				return module.l;
-			}
-		});
-		Object.defineProperty(module, "id", {
-			enumerable: true,
-			get: function() {
-				return module.i;
-			}
-		});
-		module.webpackPolyfill = 1;
-	}
-	return module;
-};
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports) {
-
-/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {/* globals __webpack_amd_options__ */
-module.exports = __webpack_amd_options__;
-
-/* WEBPACK VAR INJECTION */}.call(exports, {}))
-
-/***/ }),
-/* 11 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const 
 postal = __webpack_require__(2),
-_ = __webpack_require__(1);
-module.exports = _.memoize(() => {
-    var channel;
-    channel = postal.channel('certification');
-    channel.subscribe('get.request', (message, env) => {
-        var result;
-        result = _.chain(productData).map(p => p.certifications).flatten().uniq().without(null).value();
-        channel.publish('get.response', result);
-    });
-    return {
-        // queue would be be good here
-        get: () => 
-            channel.publish('get.request'),
-        subscriptions: {
-            onGet: (todo) =>
-                channel.subscribe('get.response', todo)
-        }
-
-    }
-});
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-const 
-postal = __webpack_require__(2),
-_ = __webpack_require__(1);
-module.exports = _.memoize(() => {
-    var channel;
-    const messageTypes = {alert: '!', info: 'i'};
-    channel = postal.channel('message');
-    channel.subscribe('display.request', (message, env) => {
-        // check to see if there's any subscription
-        if(postal.getSubscribersFor({channel: 'message', topic:'display.response'}).length === 0) throw new Info("Please Add A Message ViewModel To The App");
-        channel.publish('display.response', message);
-    });
-    return {
-        // queue would be be good here
-        display: function(type, text) {
-            channel.publish('display.request', {type, text});
-        },
-        subscriptions: {
-            displayResponse: function MessageService_displayResponse(todo) {
-                channel.subscribe('display.response', todo);
-            }
-        },
-        constants: {messageTypes}
-
-    }
-});
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-const 
-postal = __webpack_require__(2),
-_ = __webpack_require__(1);
+_ = __webpack_require__(1),
+cartService = __webpack_require__(4)(),
+productRepository = __webpack_require__(13).products;
 module.exports = _.memoize(function ctor_ProductService() {
-    
     const channel = postal.channel('product');
-    var adjustAvailable, currentPage, criteria, criteriate, defaultCriteria, page, resetPage, store;
+    var adjustAvailable, criteria, criteriate, currentPage, defaultCriteria, page, resetPage, store;
 
     criteria = {};
-    store =  _.map(_.sortBy(productData, p => p.title),
-    (item, i) => { 
-        item.id = i;    
-        return item;
+    productRepository().then((data) => {
+        store =  _.map(_.sortBy(data, p => p.title),
+            (item, i) => { 
+                item.id = i;    
+                return item;
+            }
+        );
     });
+
     adjustAvailable = function ProductService_adjustAvailable(product, quantity) {
         var found;
         
@@ -18348,7 +18072,7 @@ module.exports = _.memoize(function ctor_ProductService() {
         // store the criteria so paging doesn't interfere with filters
         criteria = _.defaults(crit, defaultCriteria); 
         currentPage = page(criteriate(crit), crit.limit, crit.skip);
-        channel.publish('get.response', { result: currentPage, criteria });
+        channel.publish('get.response', { result: currentPage, criteria, all: store});
     });
 
 
@@ -18360,7 +18084,7 @@ module.exports = _.memoize(function ctor_ProductService() {
         if(data.changed.available === 0) messageService.display(messageService.constants.messageTypes.alert, "You bought us out!!!");
         // if the updated item is in the currentPage, publish the change
         if(_.find(currentPage.page, {id: data.changed.id})) { 
-            channel.publish('get.response', {result: currentPage, criteria});
+            channel.publish('get.response', {result: currentPage, criteria, all: store});
         }
     });
 
@@ -18377,55 +18101,464 @@ module.exports = _.memoize(function ctor_ProductService() {
 });
 
 /***/ }),
-/* 14 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const ko = __webpack_require__(0);
 
-module.exports = function AppModel(services, attributes) {
-    const vm = {
-        attributes: attributes,
-        title: 'Welcome to the Postal Smart Cart',
-        subtotal: ko.observable(0),
-        tax: ko.observable(0),
-        total: ko.observable(0)
-    };
+module.exports = function ProductModel(services, context) {
+    var vm;
 
-    vm.show = ko.computed(() => { 
-        return vm.subtotal() > 0; 
-    });
-    
-    // subscriptions for controller
-    services.cartService.subscriptions.anyResponse((data, env) => {
-        // same thing here, replace each value
-        vm.subtotal(data.cart.totals.subTotal);
-        vm.tax(data.cart.totals.tax);
-        vm.total(data.cart.totals.total);
-    });
+    vm = {
+        model: context.model,
+        addToBag: () =>
+            services.cartService.change(context.model, 1)
+    };
 
     return vm;
 };
 
 /***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const
+    ko = __webpack_require__(0),
+    models = __webpack_require__(8),
+    services = __webpack_require__(3);
+window.mm = models;
+function App($, elSelector) {
+    ko.components.register('app', {
+        template:  $('#tmpl-app').html(),
+        viewModel: models.Cart
+    });
+    ko.components.register('cart', {
+        template:  $('#tmpl-cart').html(),
+        viewModel: models.Cart
+    });
+    ko.components.register('product', {
+        template:  $('#tmpl-product').html(),
+        viewModel: models.Product
+    });
+    ko.components.register('products', {
+        template:  $('#tmpl-products').html(),
+        viewModel: models.Products
+    });
+    ko.components.register('productsnavigation', {
+        template:  $('#tmpl-products-navigation').html(),
+        viewModel: models.ProductsNavigation
+    });
+    ko.components.register('cartitem', {
+        template:  $('#tmpl-cart-item').html(),
+        viewModel: models.CartItem
+    });
+    ko.components.register('freeshipping', {
+        template:  $('#tmpl-freeshipping').html(),
+        viewModel: models.FreeShipping
+    });
+    ko.components.register('itemsincart', {
+        template:  $('#tmpl-items-in-cart').html(),
+        viewModel: models.ItemsInCart
+    });
+    ko.components.register('message', {
+        template:  $('#tmpl-message').html(),
+        viewModel: models.Message
+    });
+    ko.components.register('certificationsfilter', {
+        template:  $('#tmpl-certifications-filter').html(),
+        viewModel: models.CertificationFilter
+    });
+    
+    ko.applyBindings({}, $(elSelector)[0]);
+};
+
+App(jQuery, '#app');
+//boot the products after its all loaded
+_.defer(() => services.productService.get({}))
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const services = __webpack_require__(3),
+partial = __webpack_require__(1).partial;
+
+module.exports = {
+    App: partial(__webpack_require__(16), services),
+    Cart: partial(__webpack_require__(17), services),
+    CartItem: partial(__webpack_require__(18), services),
+    CertificationFilter: partial(__webpack_require__(19), services),
+    FreeShipping: partial(__webpack_require__(20), services),
+    ItemsInCart: partial(__webpack_require__(21), services),
+    Message: partial(__webpack_require__(22), services),
+    Product: partial(__webpack_require__(6), services),
+    Products: partial(__webpack_require__(23), services),
+    Product: partial(__webpack_require__(6), services),
+    ProductsNavigation: partial(__webpack_require__(24), services)
+};
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports) {
+
+module.exports = function(module) {
+	if(!module.webpackPolyfill) {
+		module.deprecate = function() {};
+		module.paths = [];
+		// module.parent = undefined by default
+		if(!module.children) module.children = [];
+		Object.defineProperty(module, "loaded", {
+			enumerable: true,
+			get: function() {
+				return module.l;
+			}
+		});
+		Object.defineProperty(module, "id", {
+			enumerable: true,
+			get: function() {
+				return module.i;
+			}
+		});
+		module.webpackPolyfill = 1;
+	}
+	return module;
+};
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports) {
+
+/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {/* globals __webpack_amd_options__ */
+module.exports = __webpack_amd_options__;
+
+/* WEBPACK VAR INJECTION */}.call(exports, {}))
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const 
+postal = __webpack_require__(2),
+_ = __webpack_require__(1),
+productService = __webpack_require__(5)();
+module.exports = _.memoize(() => {
+    var channel, data, init;
+    channel = postal.channel('certification');
+
+    channel.subscribe('get.request', (message, env) => {
+        console.log('got request');
+        var products, todo, result;
+        todo = function(data) {
+            products = data.all;
+            result = _.chain(products).map(p => p.certifications).flatten().uniq().without(null).value();
+            channel.publish('get.response', result);    
+        };
+
+        productService.subscriptions.onGet(todo);
+    }).once();
+
+    return {
+        // queue would be be good here
+        get: () => 
+            channel.publish('get.request'),
+        subscriptions: {
+            onGet: (todo) =>
+                channel.subscribe('get.response', todo)
+        }
+
+    }
+});
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = {
+    products: __webpack_require__(14)
+};
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports) {
+
+var productData = [
+    {
+        title: 'Coffee',
+        price: 14.95,
+        available: 27,
+        discountAfter: 6,
+        certifications: ['USDA Organic', 'GMO Free', 'Fair Trade'],
+        tags: ['Origin:Costa Rica', 'Descriptor:Light Roast', 'Flavor: Mild & Nutty'],
+        rating: 10
+    },
+    {
+        title: 'fruit leather',
+        price: 0.5,
+        available: 50,
+        discountAfter: 6,
+        certifications: ['USDA Organic', 'GMO Free'],
+        tags: ['Origin:Costa Rica', 'Descriptor:Light Roast', 'Flavor: Mild & Nutty'],
+        rating: 9
+    },
+    {
+        title: 'mid-level fancy wine',
+        price: 89.12,
+        available: 13,
+        discountAfter: 6,
+        certifications: ['GMO Free'],
+        tags: ['Origin:Italy', 'Grape:Chianti', 'Flavor: Floral + Smooth Finish'],
+        rating: 6
+    },
+    {
+        title: 'moon round trip ticket',
+        price: 22450,
+        available: 4,
+        discountAfter: 6,
+        certifications: ['GMO Free'],
+        tags: ['Departs:Tomorrow', 'Returns:LOL, BC', 'Seating:Business Class'],
+        rating: null
+    },
+    {
+        title: 'champagne',
+        price: 45,
+        available: 7,
+        discountAfter: 6,
+        certifications: ['GMO Free'],
+        tags: ['Origin:France', 'Grape:Buena Pregunta', 'Flavor: Bubbly'],
+        rating: 6
+        
+    },
+    {
+        title: 'Pea Protein Powder',
+        price: 14.95,
+        available: 23,
+        discountAfter: 6,
+        certifications: ['USDA Organic', 'GMO Free'],
+        tags: ['Buzz: Branched-Chain Amino Acids', 'Flavor:Meh', 'Recommender: Dr Feelgo Ood'],
+        rating: 8
+    },
+    {
+        title: 'Egg',
+        price: 0.5,
+        available: 500,
+        discountAfter: 12,
+        certifications: ['USDA Organic', 'GMO Free', 'Free Range'],
+        tags: ['Origin:Local', 'Flavor: Chickeny'],
+        rating: 9
+    },
+    {
+        title: 'Ribeye',
+        price: 50.12,
+        available: 13,
+        discountAfter: null,
+        certifications: ['UDSA Organic', 'USDA Prime'],
+        tags: ['Origin:Texas', 'Average Weight: 1 lb', 'Feed:Grass'],
+        rating: 9
+    },
+    {
+        title: 'Total Recall',
+        price: 27450,
+        available: NaN,
+        discountAfter: null,
+        certifications: ['APA'],
+        tags: ['Name:Quaid', 'Muscles:Big', 'Seating:Mostly Running'],
+        rating: 4
+    },
+    {
+        title: 'Men\'s Multivitamin',
+        price: 45,
+        available: 18,
+        discountAfter: 6,
+        certifications: ['GMO Free', 'USDA Organic', 'Whole Food'],
+        tags: ['Raw', 'Vegan', '44 Superfoods'],
+        rating: 6
+        
+    },
+    {
+        title: 'Rye Berries',
+        price: 14.95,
+        available: 27,
+        discountAfter: 6,
+        certifications: ['USDA Organic', 'GMO Free', 'Fair Trade'],
+        tags: ['Amount:1lb', 'Awesome Use:Mycology'],
+        rating: 10
+    },
+    {
+        title: 'Ketchup',
+        price: 5,
+        available: 24,
+        discountAfter: 6,
+        certifications: ['USDA Organic', 'GMO Free'],
+        tags: ['Roma Tomatoes', 'Amount:8 oz', 'Color:Green'],
+        rating: 9
+    },
+    {
+        title: 'Cheddar Hoop',
+        price: 87.12,
+        available: 13,
+        discountAfter: null,
+        certifications: ['GMO Free', 'USDA Organic'],
+        tags: ['Color:White', 'Origin:Wisconsin', 'Flavor:Sharp'],
+        rating: 3
+    },
+    {
+        title: 'Journey to Center of Earth in Time Machine',
+        price: 22450,
+        available: 3,
+        discountAfter: 6,
+        certifications: null,
+        tags: ['Departs:Yesterday', 'Returns:Do you have to ask?', 'NO AC'],
+        rating: null
+    },
+    {
+        title: 'Pine Nuts',
+        price: 17,
+        available: 14,
+        discountAfter: 6,
+        certifications: ['GMO Free', 'USDA Organic'],
+        tags: ['Origin:Washington State', 'Awesome Use: Hummus'],
+        rating: 7
+        
+    }
+    
+];
+
+module.exports = function() {
+    return new Promise((resolve, reject) => resolve(productData));
+}
+
+/***/ }),
 /* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const 
+postal = __webpack_require__(2),
+_ = __webpack_require__(1);
+module.exports = _.memoize(() => {
+    var channel;
+    const messageTypes = {alert: '!', info: 'i'};
+    channel = postal.channel('message');
+    channel.subscribe('display.request', (message, env) => {
+        // check to see if there's any subscription
+        if(postal.getSubscribersFor({channel: 'message', topic:'display.response'}).length === 0) throw new Info("Please Add A Message ViewModel To The App");
+        channel.publish('display.response', message);
+    });
+    return {
+        // queue would be be good here
+        display: function(type, text) {
+            channel.publish('display.request', {type, text});
+        },
+        subscriptions: {
+            displayResponse: function MessageService_displayResponse(todo) {
+                channel.subscribe('display.response', todo);
+            }
+        },
+        constants: {messageTypes}
+
+    }
+});
+
+/***/ }),
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const ko = __webpack_require__(0);
 
-module.exports = function CartModel(services, attributes) {
-    console.log(services);
+module.exports = function AppModel(services, attributes) {
+    // const vm = {
+    //     attributes: attributes,
+    //     title: 'Welcome to the Postal Smart Cart'
+    // };
+    
+    // return vm;
     var vm;
 
     vm = {
         attributes: attributes,
-        bag: ko.observableArray([])
+        bag: ko.observableArray([]),
+        subtotal: ko.observable(0),
+        tax: ko.observable(0),
+        total: ko.observable(0),
+        show:ko.observable(false)
     };
+
+    vm.show = ko.computed(() => { 
+        return vm.subtotal() > 0; 
+    });
 
     // subscriptions for controller
     services.cartService.subscriptions.anyResponse((data, env) => {
         // clear it
         vm.bag.removeAll();
         // repopulate without changing the reference -- rivets won't pickup on it changes like vm.bag = x, you have to repopulate the original array
+        vm.subtotal(data.cart.totals.subTotal);
+        vm.tax(data.cart.totals.tax);
+        vm.total(data.cart.totals.total);
+        _.each(data.cart.store, (item) => vm.bag.push(item));
+    });
+
+    return vm;
+
+};
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const ko = __webpack_require__(0);
+
+module.exports = function CartModel(services, attributes) {
+    var vm;
+
+    vm = {
+        attributes: attributes,
+        bag: ko.observableArray([]),
+        subtotal: ko.observable(0),
+        tax: ko.observable(0),
+        total: ko.observable(0),
+        show:ko.observable(false)
+    };
+
+    vm.show = ko.computed(() => { 
+        return vm.subtotal() > 0; 
+    });
+
+    // subscriptions for controller
+    services.cartService.subscriptions.anyResponse((data, env) => {
+        // clear it
+        vm.bag.removeAll();
+        // repopulate without changing the reference -- rivets won't pickup on it changes like vm.bag = x, you have to repopulate the original array
+        vm.subtotal(data.cart.totals.subTotal);
+        vm.tax(data.cart.totals.tax);
+        vm.total(data.cart.totals.total);
         _.each(data.cart.store, (item) => vm.bag.push(item));
     });
 
@@ -18433,7 +18566,7 @@ module.exports = function CartModel(services, attributes) {
 };
 
 /***/ }),
-/* 16 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const ko = __webpack_require__(0);
@@ -18451,7 +18584,7 @@ module.exports = function CartItemModel(services, context) {
 };
 
 /***/ }),
-/* 17 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const
@@ -18459,6 +18592,7 @@ const
     _ = __webpack_require__(1);
 
 module.exports = function CertificationsModel(services, attributes) {
+    console.log(services, services.certificationService);
     const vm = {
         attributes: attributes,
         certifications: ko.observableArray([]),
@@ -18473,13 +18607,13 @@ module.exports = function CertificationsModel(services, attributes) {
         vm.certifications.removeAll();
         _.each(certifications, (certification) => vm.certifications.push(certification));
     });
-
-    certificationService.get({});
+    
+    _.defer(() => services.certificationService.get({}));
     return vm;
 };
 
 /***/ }),
-/* 18 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const ko = __webpack_require__(0);
@@ -18502,7 +18636,7 @@ module.exports = function FreeShippingModel(services, attributes) {
 };
 
 /***/ }),
-/* 19 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const ko = __webpack_require__(0);
@@ -18520,7 +18654,7 @@ module.exports = function ItemsInCartModel(services, attributes) {
 };
 
 /***/ }),
-/* 20 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const
@@ -18549,7 +18683,7 @@ module.exports = function MessageModel(services, attributes) {
 };
 
 /***/ }),
-/* 21 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const
@@ -18569,12 +18703,11 @@ module.exports = function ProductsModel(services, attributes) {
         _.each(payload.result.page, (product) => vm.products.push(product));
     });
 
-    productService.get({});
     return vm;
 };
 
 /***/ }),
-/* 22 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const
@@ -18607,4 +18740,4 @@ module.exports = function ProductsNavigationModel(services, attributes) {
 };
 
 /***/ })
-/******/ ]);
+],[7]);
