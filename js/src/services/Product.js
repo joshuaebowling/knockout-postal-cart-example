@@ -1,8 +1,11 @@
 const 
-postal = require('postal'),
-_ = require('lodash'),
-cartService = require('./Cart')(),
-productRepository = require('../repositories/').products;
+    postal = require('postal'),
+    _ = require('lodash'),
+    cartService = require('./Cart')(),
+    messageService = require('./Message')(),
+    productRepository = require('../repositories/').products
+;
+
 module.exports = _.memoize(function ctor_ProductService() {
     const channel = postal.channel('product');
     var adjustAvailable, criteria, criteriate, currentPage, defaultCriteria, page, resetPage, store;
@@ -18,11 +21,12 @@ module.exports = _.memoize(function ctor_ProductService() {
     });
 
     adjustAvailable = function ProductService_adjustAvailable(product, quantity) {
-        var found;
+        var found, newAvailable;
         
          found = _.find(store, (aproduct) => aproduct.id === product.id);
          /// TODO: if the found isnt found then publish to the MessageService
-         found.available = found.available + quantity;
+         newAvailable = found.available + quantity;
+         found.available = newAvailable >= 0 ? newAvailable : found.available;
          return found; 
     };
 

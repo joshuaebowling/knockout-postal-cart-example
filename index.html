@@ -27,13 +27,13 @@
       <span data-bind="text: model.title"></span>
      (<span data-bind="text: model.quantity"></span>)
     </h3>
-    <button type="button" data-bind="click: addItem">+</button>
+    <button type="button" data-bind="click: addItem, enable: model.available > 0">+</button>
     
 </script>
   <script type="text/template" id="tmpl-products">
     <h3>Products</h3>
     <productsnavigation />
-    <ul data-bind="foreach: products">
+    <ul id="product-container" data-bind="foreach: products">
       <li>
         <product params="model: $data"/>
       </li>

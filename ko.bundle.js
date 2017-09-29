@@ -17221,7 +17221,7 @@ new a.P;var b=new a.xb;0<b.ed&&a.Fb(b);a.b("jqueryTmplTemplateEngine",a.xb)})()}
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(10)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(11)(module)))
 
 /***/ }),
 /* 2 */
@@ -17718,7 +17718,7 @@ _.extend( postal, {
 
 	noConflict: function noConflict() {
 		
-		if ( typeof window === "undefined" || ( typeof window !== "undefined" && "function" === "function" && __webpack_require__(11) ) ) {
+		if ( typeof window === "undefined" || ( typeof window !== "undefined" && "function" === "function" && __webpack_require__(12) ) ) {
 			throw new Error( "noConflict can only be used in browser clients which aren't using AMD modules" );
 		}
 		global.postal = prevPostal;
@@ -17916,8 +17916,8 @@ _.extend( postal, {
 
 module.exports = {
     cartService: __webpack_require__(4)(),
-    certificationService: __webpack_require__(12)(),
-    messageService: __webpack_require__(15)(),
+    certificationService: __webpack_require__(13)(),
+    messageService: __webpack_require__(6)(),
     productService: __webpack_require__(5)() 
 };
 
@@ -17952,7 +17952,9 @@ module.exports = _.memoize(function ctor_CartService() {
     };
 
     adjustQuantity = function CartService_adjustQuantity(item, quantity) {
-        var existentItem = _.find(cart.store, (cartitem) => { return item.id === cartitem.id });
+        var existentItem;
+
+        existentItem = _.find(cart.store, (cartitem) => { return item.id === cartitem.id });
         if(existentItem) {
             existentItem.quantity += quantity;
             if(existentItem.quantity === 0) _.remove(cart.store, existentItem);
@@ -17979,7 +17981,9 @@ module.exports = _.memoize(function ctor_CartService() {
 
     channel.subscribe('change.request', (request, env) => {
         var changed;
-        
+        console.log(request);
+        console.log(request.item.available - request.quantity <= 0);
+        if(request.item.available - request.quantity < 0) return;
         changed = adjustQuantity(request.item, request.quantity);
         channel.publish('change.response', { cart, changed, quantity: request.quantity });
     });
@@ -18004,10 +18008,13 @@ module.exports = _.memoize(function ctor_CartService() {
 /***/ (function(module, exports, __webpack_require__) {
 
 const 
-postal = __webpack_require__(2),
-_ = __webpack_require__(1),
-cartService = __webpack_require__(4)(),
-productRepository = __webpack_require__(13).products;
+    postal = __webpack_require__(2),
+    _ = __webpack_require__(1),
+    cartService = __webpack_require__(4)(),
+    messageService = __webpack_require__(6)(),
+    productRepository = __webpack_require__(14).products
+;
+
 module.exports = _.memoize(function ctor_ProductService() {
     const channel = postal.channel('product');
     var adjustAvailable, criteria, criteriate, currentPage, defaultCriteria, page, resetPage, store;
@@ -18023,11 +18030,13 @@ module.exports = _.memoize(function ctor_ProductService() {
     });
 
     adjustAvailable = function ProductService_adjustAvailable(product, quantity) {
-        var found;
+        var found, newAvailable;
         
          found = _.find(store, (aproduct) => aproduct.id === product.id);
          /// TODO: if the found isnt found then publish to the MessageService
-         found.available = found.available + quantity;
+         newAvailable = found.available + quantity;
+         found.available = newAvailable >= 0 ? newAvailable : found.available;
+         console.log('f=',found);
          return found; 
     };
 
@@ -18104,6 +18113,37 @@ module.exports = _.memoize(function ctor_ProductService() {
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
+const 
+postal = __webpack_require__(2),
+_ = __webpack_require__(1);
+module.exports = _.memoize(() => {
+    var channel;
+    const messageTypes = {alert: '!', info: 'i'};
+    channel = postal.channel('message');
+    channel.subscribe('display.request', (message, env) => {
+        // check to see if there's any subscription
+        if(postal.getSubscribersFor({channel: 'message', topic:'display.response'}).length === 0) throw new Info("Please Add A Message ViewModel To The App");
+        channel.publish('display.response', message);
+    });
+    return {
+        // queue would be be good here
+        display: function(type, text) {
+            channel.publish('display.request', {type, text});
+        },
+        subscriptions: {
+            displayResponse: function MessageService_displayResponse(todo) {
+                channel.subscribe('display.response', todo);
+            }
+        },
+        constants: {messageTypes}
+
+    }
+});
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
 const ko = __webpack_require__(0);
 
 module.exports = function ProductModel(services, context) {
@@ -18119,12 +18159,12 @@ module.exports = function ProductModel(services, context) {
 };
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const
     ko = __webpack_require__(0),
-    models = __webpack_require__(8),
+    models = __webpack_require__(9),
     services = __webpack_require__(3);
 window.mm = models;
 function App($, elSelector) {
@@ -18177,7 +18217,7 @@ App(jQuery, '#app');
 _.defer(() => services.productService.get({}))
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const services = __webpack_require__(3),
@@ -18191,14 +18231,14 @@ module.exports = {
     FreeShipping: partial(__webpack_require__(20), services),
     ItemsInCart: partial(__webpack_require__(21), services),
     Message: partial(__webpack_require__(22), services),
-    Product: partial(__webpack_require__(6), services),
+    Product: partial(__webpack_require__(7), services),
     Products: partial(__webpack_require__(23), services),
-    Product: partial(__webpack_require__(6), services),
+    Product: partial(__webpack_require__(7), services),
     ProductsNavigation: partial(__webpack_require__(24), services)
 };
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports) {
 
 var g;
@@ -18225,7 +18265,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -18253,7 +18293,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports) {
 
 /* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {/* globals __webpack_amd_options__ */
@@ -18262,7 +18302,7 @@ module.exports = __webpack_amd_options__;
 /* WEBPACK VAR INJECTION */}.call(exports, {}))
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const 
@@ -18298,15 +18338,15 @@ module.exports = _.memoize(() => {
 });
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = {
-    products: __webpack_require__(14)
+    products: __webpack_require__(15)
 };
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports) {
 
 var productData = [
@@ -18454,37 +18494,6 @@ var productData = [
 module.exports = function() {
     return new Promise((resolve, reject) => resolve(productData));
 }
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-const 
-postal = __webpack_require__(2),
-_ = __webpack_require__(1);
-module.exports = _.memoize(() => {
-    var channel;
-    const messageTypes = {alert: '!', info: 'i'};
-    channel = postal.channel('message');
-    channel.subscribe('display.request', (message, env) => {
-        // check to see if there's any subscription
-        if(postal.getSubscribersFor({channel: 'message', topic:'display.response'}).length === 0) throw new Info("Please Add A Message ViewModel To The App");
-        channel.publish('display.response', message);
-    });
-    return {
-        // queue would be be good here
-        display: function(type, text) {
-            channel.publish('display.request', {type, text});
-        },
-        subscriptions: {
-            displayResponse: function MessageService_displayResponse(todo) {
-                channel.subscribe('display.response', todo);
-            }
-        },
-        constants: {messageTypes}
-
-    }
-});
 
 /***/ }),
 /* 16 */
@@ -18699,6 +18708,7 @@ module.exports = function ProductsModel(services, attributes) {
     // listen for when the product service returns a list of products, will also work for paging 
     services.productService.subscriptions.onGet((payload, env) => {
         var products;
+        
         vm.products.removeAll();
         _.each(payload.result.page, (product) => vm.products.push(product));
     });
@@ -18740,4 +18750,4 @@ module.exports = function ProductsNavigationModel(services, attributes) {
 };
 
 /***/ })
-],[7]);
+],[8]);
