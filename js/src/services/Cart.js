@@ -25,7 +25,9 @@ module.exports = _.memoize(function ctor_CartService() {
     };
 
     adjustQuantity = function CartService_adjustQuantity(item, quantity) {
-        var existentItem = _.find(cart.store, (cartitem) => { return item.id === cartitem.id });
+        var existentItem;
+
+        existentItem = _.find(cart.store, (cartitem) => { return item.id === cartitem.id });
         if(existentItem) {
             existentItem.quantity += quantity;
             if(existentItem.quantity === 0) _.remove(cart.store, existentItem);
@@ -52,7 +54,9 @@ module.exports = _.memoize(function ctor_CartService() {
 
     channel.subscribe('change.request', (request, env) => {
         var changed;
-        
+        console.log(request);
+        console.log(request.item.available - request.quantity <= 0);
+        if(request.item.available - request.quantity < 0) return;
         changed = adjustQuantity(request.item, request.quantity);
         channel.publish('change.response', { cart, changed, quantity: request.quantity });
     });

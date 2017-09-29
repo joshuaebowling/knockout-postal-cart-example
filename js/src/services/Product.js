@@ -21,11 +21,13 @@ module.exports = _.memoize(function ctor_ProductService() {
     });
 
     adjustAvailable = function ProductService_adjustAvailable(product, quantity) {
-        var found;
+        var found, newAvailable;
         
          found = _.find(store, (aproduct) => aproduct.id === product.id);
          /// TODO: if the found isnt found then publish to the MessageService
-         found.available = found.available + quantity;
+         newAvailable = found.available + quantity;
+         found.available = newAvailable >= 0 ? newAvailable : found.available;
+         console.log('f=',found);
          return found; 
     };
 
