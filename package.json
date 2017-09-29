@@ -4,7 +4,9 @@
   "description": "Knockout has been around for years and years, so also has MV*; this a new flavor MVServiceChannel where all data flows directly out of the view models via postal.js channels, connecting independent components with little effort, very similar to *the difference between wired and wireless communication*.",
   "main": "index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node_modules/.bin/webpack-dev-server",
+    "bundle": "webpack"
   },
   "repository": {
     "type": "git",
