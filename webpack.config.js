@@ -12,7 +12,7 @@ module.exports = {
   ],
   output: {
     filename: '[name].bundle.js',
-    path: path.resolve(__dirname, 'js/dist')
+    path: path.resolve(__dirname, './')
   },
   resolve: {
     modules: ['js/lib', 'node_modules']
