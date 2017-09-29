@@ -54,8 +54,6 @@ module.exports = _.memoize(function ctor_CartService() {
 
     channel.subscribe('change.request', (request, env) => {
         var changed;
-        console.log(request);
-        console.log(request.item.available - request.quantity <= 0);
         if(request.item.available - request.quantity < 0) return;
         changed = adjustQuantity(request.item, request.quantity);
         channel.publish('change.response', { cart, changed, quantity: request.quantity });

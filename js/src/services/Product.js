@@ -27,7 +27,6 @@ module.exports = _.memoize(function ctor_ProductService() {
          /// TODO: if the found isnt found then publish to the MessageService
          newAvailable = found.available + quantity;
          found.available = newAvailable >= 0 ? newAvailable : found.available;
-         console.log('f=',found);
          return found; 
     };
 
