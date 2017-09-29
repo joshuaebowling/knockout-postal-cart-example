@@ -21,3 +21,7 @@ li:first-child {
 h3.cart-item {
   display: inline-block;
 }
+
+ul#product-container {
+  min-height: 100px;
+}
