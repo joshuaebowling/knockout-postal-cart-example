@@ -16,5 +16,5 @@ module.exports = {
     'manifest.json',
     'node_modules/webcomponentsjs/*',
   ],
-  navigateFallback: 'index.html',
+  navigateFallback: 'poly-index.html',
 };

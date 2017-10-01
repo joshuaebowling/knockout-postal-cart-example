@@ -1,5 +1,5 @@
 {
-  "entrypoint": "index.html",
+  "entrypoint": "poly-index.html",
   "shell": "src/my-app.html",
   "fragments": [
     "src/my-view1.html",
@@ -13,8 +13,7 @@
     "bower.json"
   ],
   "extraDependencies": [
-    "manifest.json",
-    "bower_components/webcomponentsjs/*.js"
+    "manifest.json"
   ],
   "lint": {
     "rules": ["polymer-2"]
